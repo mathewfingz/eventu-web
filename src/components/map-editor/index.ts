@@ -1,0 +1,10 @@
+export { MapEditor } from './MapEditor';
+export { EditorCanvas } from './EditorCanvas';
+export { useMapEditor } from './hooks/useMapEditor';
+export { useKeyboard } from './hooks/useKeyboard';
+export { Toolbar } from './panels/Toolbar';
+export { ToolsPanel } from './panels/ToolsPanel';
+export { PropertiesPanel } from './panels/PropertiesPanel';
+export { SeatGenerator } from './generators/SeatGenerator';
+export { TableGenerator } from './generators/TableGenerator';
+export * from './types';

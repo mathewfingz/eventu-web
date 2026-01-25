@@ -1,0 +1,572 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EC000001298CF00000000001 /* EventuClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000002298CF00000000001 /* EventuClientApp.swift */; };
+		EC000003298CF00000000001 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000004298CF00000000001 /* DesignSystem.swift */; };
+		EC000005298CF00000000001 /* ClientAppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000006298CF00000000001 /* ClientAppState.swift */; };
+		EC000007298CF00000000001 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000008298CF00000000001 /* Constants.swift */; };
+		EC000009298CF00000000001 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00000A298CF00000000001 /* NetworkMonitor.swift */; };
+		EC00000B298CF00000000001 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00000C298CF00000000001 /* Event.swift */; };
+		EC00000D298CF00000000001 /* ClientTicket.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00000E298CF00000000001 /* ClientTicket.swift */; };
+		EC00000F298CF00000000001 /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000010298CF00000000001 /* Order.swift */; };
+		EC000011298CF00000000001 /* SafeTixService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000012298CF00000000001 /* SafeTixService.swift */; };
+		EC000013298CF00000000001 /* ClientAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000014298CF00000000001 /* ClientAuthService.swift */; };
+		EC000015298CF00000000001 /* EventService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000016298CF00000000001 /* EventService.swift */; };
+		EC000017298CF00000000001 /* TicketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000018298CF00000000001 /* TicketService.swift */; };
+		EC000019298CF00000000001 /* OrderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00001A298CF00000000001 /* OrderService.swift */; };
+		EC00001B298CF00000000001 /* PaymentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00001C298CF00000000001 /* PaymentService.swift */; };
+		EC00001D298CF00000000001 /* EventsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00001E298CF00000000001 /* EventsViewModel.swift */; };
+		EC00001F298CF00000000001 /* EventDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000020298CF00000000001 /* EventDetailViewModel.swift */; };
+		EC000021298CF00000000001 /* CartViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000022298CF00000000001 /* CartViewModel.swift */; };
+		EC000023298CF00000000001 /* CheckoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000024298CF00000000001 /* CheckoutViewModel.swift */; };
+		EC000025298CF00000000001 /* TicketsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000026298CF00000000001 /* TicketsViewModel.swift */; };
+		EC000027298CF00000000001 /* TicketDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000028298CF00000000001 /* TicketDetailViewModel.swift */; };
+		EC000029298CF00000000001 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00002A298CF00000000001 /* RootView.swift */; };
+		EC00002B298CF00000000001 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00002C298CF00000000001 /* MainTabView.swift */; };
+		EC00002D298CF00000000001 /* ClientLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00002E298CF00000000001 /* ClientLoginView.swift */; };
+		EC00002F298CF00000000001 /* ClientRegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000030298CF00000000001 /* ClientRegisterView.swift */; };
+		EC000031298CF00000000001 /* EventsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000032298CF00000000001 /* EventsListView.swift */; };
+		EC000033298CF00000000001 /* EventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000034298CF00000000001 /* EventDetailView.swift */; };
+		EC000035298CF00000000001 /* EventCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000036298CF00000000001 /* EventCardView.swift */; };
+		EC000037298CF00000000001 /* MyTicketsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000038298CF00000000001 /* MyTicketsView.swift */; };
+		EC000039298CF00000000001 /* TicketDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00003A298CF00000000001 /* TicketDetailView.swift */; };
+		EC00003B298CF00000000001 /* SafeTixQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00003C298CF00000000001 /* SafeTixQRView.swift */; };
+		EC00003D298CF00000000001 /* CartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00003E298CF00000000001 /* CartView.swift */; };
+		EC00003F298CF00000000001 /* CheckoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000040298CF00000000001 /* CheckoutView.swift */; };
+		EC000041298CF00000000001 /* OrderConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000042298CF00000000001 /* OrderConfirmationView.swift */; };
+		EC000043298CF00000000001 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000044298CF00000000001 /* ProfileView.swift */; };
+		EC000045298CF00000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EC000046298CF00000000001 /* Assets.xcassets */; };
+		EC000047298CF00000000001 /* EventuHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC000048298CF00000000001 /* EventuHeaderView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		EC000000298CF00000000001 /* EventuClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EventuClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EC000002298CF00000000001 /* EventuClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventuClientApp.swift; sourceTree = "<group>"; };
+		EC000004298CF00000000001 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		EC000006298CF00000000001 /* ClientAppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientAppState.swift; sourceTree = "<group>"; };
+		EC000008298CF00000000001 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		EC00000A298CF00000000001 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		EC00000C298CF00000000001 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		EC00000E298CF00000000001 /* ClientTicket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientTicket.swift; sourceTree = "<group>"; };
+		EC000010298CF00000000001 /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
+		EC000012298CF00000000001 /* SafeTixService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeTixService.swift; sourceTree = "<group>"; };
+		EC000014298CF00000000001 /* ClientAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientAuthService.swift; sourceTree = "<group>"; };
+		EC000016298CF00000000001 /* EventService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventService.swift; sourceTree = "<group>"; };
+		EC000018298CF00000000001 /* TicketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketService.swift; sourceTree = "<group>"; };
+		EC00001A298CF00000000001 /* OrderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderService.swift; sourceTree = "<group>"; };
+		EC00001C298CF00000000001 /* PaymentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentService.swift; sourceTree = "<group>"; };
+		EC00001E298CF00000000001 /* EventsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsViewModel.swift; sourceTree = "<group>"; };
+		EC000020298CF00000000001 /* EventDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailViewModel.swift; sourceTree = "<group>"; };
+		EC000022298CF00000000001 /* CartViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartViewModel.swift; sourceTree = "<group>"; };
+		EC000024298CF00000000001 /* CheckoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutViewModel.swift; sourceTree = "<group>"; };
+		EC000026298CF00000000001 /* TicketsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketsViewModel.swift; sourceTree = "<group>"; };
+		EC000028298CF00000000001 /* TicketDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketDetailViewModel.swift; sourceTree = "<group>"; };
+		EC00002A298CF00000000001 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		EC00002C298CF00000000001 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		EC00002E298CF00000000001 /* ClientLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientLoginView.swift; sourceTree = "<group>"; };
+		EC000030298CF00000000001 /* ClientRegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientRegisterView.swift; sourceTree = "<group>"; };
+		EC000032298CF00000000001 /* EventsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsListView.swift; sourceTree = "<group>"; };
+		EC000034298CF00000000001 /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
+		EC000036298CF00000000001 /* EventCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCardView.swift; sourceTree = "<group>"; };
+		EC000038298CF00000000001 /* MyTicketsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTicketsView.swift; sourceTree = "<group>"; };
+		EC00003A298CF00000000001 /* TicketDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketDetailView.swift; sourceTree = "<group>"; };
+		EC00003C298CF00000000001 /* SafeTixQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeTixQRView.swift; sourceTree = "<group>"; };
+		EC00003E298CF00000000001 /* CartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartView.swift; sourceTree = "<group>"; };
+		EC000040298CF00000000001 /* CheckoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutView.swift; sourceTree = "<group>"; };
+		EC000042298CF00000000001 /* OrderConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderConfirmationView.swift; sourceTree = "<group>"; };
+		EC000044298CF00000000001 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		EC000046298CF00000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EC000048298CF00000000001 /* EventuHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventuHeaderView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		ECFFFFFF298CF00000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		ECFFF001298CF00000000001 = {
+			isa = PBXGroup;
+			children = (
+				ECFFF002298CF00000000001 /* EventuClientApp */,
+				ECFFF003298CF00000000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		ECFFF002298CF00000000001 /* EventuClientApp */ = {
+			isa = PBXGroup;
+			children = (
+				EC000002298CF00000000001 /* EventuClientApp.swift */,
+				ECFFF004298CF00000000001 /* Core */,
+				ECFFF005298CF00000000001 /* Models */,
+				ECFFF006298CF00000000001 /* Services */,
+				ECFFF007298CF00000000001 /* ViewModels */,
+				ECFFF008298CF00000000001 /* Views */,
+				EC000046298CF00000000001 /* Assets.xcassets */,
+			);
+			path = EventuClientApp;
+			sourceTree = "<group>";
+		};
+		ECFFF003298CF00000000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EC000000298CF00000000001 /* EventuClient.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		ECFFF004298CF00000000001 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				EC000004298CF00000000001 /* DesignSystem.swift */,
+				EC000006298CF00000000001 /* ClientAppState.swift */,
+				EC000008298CF00000000001 /* Constants.swift */,
+				EC00000A298CF00000000001 /* NetworkMonitor.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		ECFFF005298CF00000000001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				EC00000C298CF00000000001 /* Event.swift */,
+				EC00000E298CF00000000001 /* ClientTicket.swift */,
+				EC000010298CF00000000001 /* Order.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		ECFFF006298CF00000000001 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				EC000012298CF00000000001 /* SafeTixService.swift */,
+				EC000014298CF00000000001 /* ClientAuthService.swift */,
+				EC000016298CF00000000001 /* EventService.swift */,
+				EC000018298CF00000000001 /* TicketService.swift */,
+				EC00001A298CF00000000001 /* OrderService.swift */,
+				EC00001C298CF00000000001 /* PaymentService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		ECFFF007298CF00000000001 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				EC00001E298CF00000000001 /* EventsViewModel.swift */,
+				EC000020298CF00000000001 /* EventDetailViewModel.swift */,
+				EC000022298CF00000000001 /* CartViewModel.swift */,
+				EC000024298CF00000000001 /* CheckoutViewModel.swift */,
+				EC000026298CF00000000001 /* TicketsViewModel.swift */,
+				EC000028298CF00000000001 /* TicketDetailViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		ECFFF008298CF00000000001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				ECFFF009298CF00000000001 /* App */,
+				ECFFF00A298CF00000000001 /* Auth */,
+				ECFFF00B298CF00000000001 /* Events */,
+				ECFFF00C298CF00000000001 /* Tickets */,
+				ECFFF00D298CF00000000001 /* Checkout */,
+				ECFFF00E298CF00000000001 /* Profile */,
+				ECFFF00F298CF00000000001 /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		ECFFF00F298CF00000000001 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				EC000048298CF00000000001 /* EventuHeaderView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		ECFFF009298CF00000000001 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				EC00002A298CF00000000001 /* RootView.swift */,
+				EC00002C298CF00000000001 /* MainTabView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		ECFFF00A298CF00000000001 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				EC00002E298CF00000000001 /* ClientLoginView.swift */,
+				EC000030298CF00000000001 /* ClientRegisterView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		ECFFF00B298CF00000000001 /* Events */ = {
+			isa = PBXGroup;
+			children = (
+				EC000032298CF00000000001 /* EventsListView.swift */,
+				EC000034298CF00000000001 /* EventDetailView.swift */,
+				EC000036298CF00000000001 /* EventCardView.swift */,
+			);
+			path = Events;
+			sourceTree = "<group>";
+		};
+		ECFFF00C298CF00000000001 /* Tickets */ = {
+			isa = PBXGroup;
+			children = (
+				EC000038298CF00000000001 /* MyTicketsView.swift */,
+				EC00003A298CF00000000001 /* TicketDetailView.swift */,
+				EC00003C298CF00000000001 /* SafeTixQRView.swift */,
+			);
+			path = Tickets;
+			sourceTree = "<group>";
+		};
+		ECFFF00D298CF00000000001 /* Checkout */ = {
+			isa = PBXGroup;
+			children = (
+				EC00003E298CF00000000001 /* CartView.swift */,
+				EC000040298CF00000000001 /* CheckoutView.swift */,
+				EC000042298CF00000000001 /* OrderConfirmationView.swift */,
+			);
+			path = Checkout;
+			sourceTree = "<group>";
+		};
+		ECFFF00E298CF00000000001 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				EC000044298CF00000000001 /* ProfileView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		ECFFFFFB298CF00000000001 /* EventuClient */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ECFFFFFC298CF00000000001 /* Build configuration list for PBXNativeTarget "EventuClient" */;
+			buildPhases = (
+				ECFFFFFE298CF00000000001 /* Sources */,
+				ECFFFFFF298CF00000000001 /* Frameworks */,
+				EC100000298CF00000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EventuClient;
+			productName = EventuClient;
+			productReference = EC000000298CF00000000001 /* EventuClient.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		ECFFFFF7298CF00000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					ECFFFFFB298CF00000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = ECFFFFF8298CF00000000001 /* Build configuration list for PBXProject "EventuClient" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				es,
+			);
+			mainGroup = ECFFF001298CF00000000001;
+			productRefGroup = ECFFF003298CF00000000001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				ECFFFFFB298CF00000000001 /* EventuClient */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EC100000298CF00000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EC000045298CF00000000001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		ECFFFFFE298CF00000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EC000001298CF00000000001 /* EventuClientApp.swift in Sources */,
+				EC000003298CF00000000001 /* DesignSystem.swift in Sources */,
+				EC000005298CF00000000001 /* ClientAppState.swift in Sources */,
+				EC000007298CF00000000001 /* Constants.swift in Sources */,
+				EC000009298CF00000000001 /* NetworkMonitor.swift in Sources */,
+				EC00000B298CF00000000001 /* Event.swift in Sources */,
+				EC00000D298CF00000000001 /* ClientTicket.swift in Sources */,
+				EC00000F298CF00000000001 /* Order.swift in Sources */,
+				EC000011298CF00000000001 /* SafeTixService.swift in Sources */,
+				EC000013298CF00000000001 /* ClientAuthService.swift in Sources */,
+				EC000015298CF00000000001 /* EventService.swift in Sources */,
+				EC000017298CF00000000001 /* TicketService.swift in Sources */,
+				EC000019298CF00000000001 /* OrderService.swift in Sources */,
+				EC00001B298CF00000000001 /* PaymentService.swift in Sources */,
+				EC00001D298CF00000000001 /* EventsViewModel.swift in Sources */,
+				EC00001F298CF00000000001 /* EventDetailViewModel.swift in Sources */,
+				EC000021298CF00000000001 /* CartViewModel.swift in Sources */,
+				EC000023298CF00000000001 /* CheckoutViewModel.swift in Sources */,
+				EC000025298CF00000000001 /* TicketsViewModel.swift in Sources */,
+				EC000027298CF00000000001 /* TicketDetailViewModel.swift in Sources */,
+				EC000029298CF00000000001 /* RootView.swift in Sources */,
+				EC00002B298CF00000000001 /* MainTabView.swift in Sources */,
+				EC00002D298CF00000000001 /* ClientLoginView.swift in Sources */,
+				EC00002F298CF00000000001 /* ClientRegisterView.swift in Sources */,
+				EC000031298CF00000000001 /* EventsListView.swift in Sources */,
+				EC000033298CF00000000001 /* EventDetailView.swift in Sources */,
+				EC000035298CF00000000001 /* EventCardView.swift in Sources */,
+				EC000037298CF00000000001 /* MyTicketsView.swift in Sources */,
+				EC000039298CF00000000001 /* TicketDetailView.swift in Sources */,
+				EC00003B298CF00000000001 /* SafeTixQRView.swift in Sources */,
+				EC00003D298CF00000000001 /* CartView.swift in Sources */,
+				EC00003F298CF00000000001 /* CheckoutView.swift in Sources */,
+				EC000041298CF00000000001 /* OrderConfirmationView.swift in Sources */,
+				EC000043298CF00000000001 /* ProfileView.swift in Sources */,
+				EC000047298CF00000000001 /* EventuHeaderView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		ECFFFFF9298CF00000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		ECFFFFFA298CF00000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		ECFFFFFD298CF00000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Eventu";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.eventu.client;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		ECFFFFFE298CF00000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Eventu";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.eventu.client;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		ECFFFFF8298CF00000000001 /* Build configuration list for PBXProject "EventuClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ECFFFFF9298CF00000000001 /* Debug */,
+				ECFFFFFA298CF00000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ECFFFFFC298CF00000000001 /* Build configuration list for PBXNativeTarget "EventuClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ECFFFFFD298CF00000000001 /* Debug */,
+				ECFFFFFE298CF00000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = ECFFFFF7298CF00000000001 /* Project object */;
+}

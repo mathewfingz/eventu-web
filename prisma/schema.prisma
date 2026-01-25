@@ -1,0 +1,1121 @@
+// Eventu - Complete Database Schema
+// Next-generation ticketing platform for Colombia
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// AUTHENTICATION & USERS
+// ============================================
+
+enum UserRole {
+  SUPERADMIN   // Platform administrator
+  COORDINATOR  // Event operations, scanning
+  PROMOTER     // Creates events, manages presales
+  VENUE        // Venue operator
+  CLIENT       // Regular customer
+}
+
+enum PromterType {
+  NATURAL      // Persona natural (individual)
+  JURIDICA     // Persona jurídica (company)
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailVerified     DateTime?
+  phone             String?
+  phoneVerified     Boolean   @default(false)
+  name              String?
+  image             String?
+  role              UserRole  @default(CLIENT)
+
+  // Device fingerprinting for security
+  deviceFingerprint String?
+  lastLoginAt       DateTime?
+  lastLoginIp       String?
+
+  // Promoter-specific fields
+  promoterType      PromterType?
+  nit               String?
+  businessName      String?
+  totalEvents       Int       @default(0)
+
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  orders            Order[]
+  tickets           Ticket[]
+  favorites         FavoriteEvent[]
+  notifications     Notification[]
+  wallet            UserWallet?
+  eventsAsPromoter  Event[]     @relation("PromoterEvents")
+  eventsAsVenue     Venue?
+  coordinatorAssignments CoordinatorAssignment[] @relation("CoordinatorAssignments")
+  assignedCoordinators   CoordinatorAssignment[] @relation("AssignedByUser")
+
+  @@index([email])
+  @@index([role])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================
+// VENUES
+// ============================================
+
+model Venue {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  address     String
+  city        String
+  country     String   @default("Colombia")
+  
+  // Capacity
+  totalCapacity Int
+  
+  // Media
+  imageUrl    String?
+  coverUrl    String?
+  seatMapUrl  String?  // SVG or image of seat map
+  
+  // Venue operator
+  operatorId  String?  @unique
+  operator    User?    @relation(fields: [operatorId], references: [id])
+  
+  // Location
+  latitude    Float?
+  longitude   Float?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  events      Event[]
+  sections    VenueSection[]
+  maps        VenueMap[]
+
+  @@index([city])
+  @@index([slug])
+}
+
+model VenueSection {
+  id            String  @id @default(cuid())
+  venueId       String
+  venue         Venue   @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  
+  name          String  // "VIP A", "Platea", "General"
+  description   String?
+  capacity      Int
+  
+  // For Deal Score calculation
+  viewQuality   Int     @default(50)  // 0-100
+  distanceToStage Int   @default(50)  // meters estimate
+  accessibility Int     @default(50)  // 0-100
+  
+  // Coordinates for seat map overlay
+  coordinates   Json?   // { x, y, width, height }
+  
+  @@unique([venueId, name])
+}
+
+// ============================================
+// EVENTS
+// ============================================
+
+enum EventCategory {
+  CONCERT
+  FESTIVAL
+  THEATER
+  STANDUP
+  SPORTS
+  PARTY
+  OTHER
+}
+
+enum EventStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PUBLISHED
+  SOLD_OUT
+  CANCELLED
+  COMPLETED
+}
+
+model Event {
+  id            String        @id @default(cuid())
+  name          String
+  slug          String        @unique
+  description   String?       @db.Text
+  
+  // Category
+  category      EventCategory
+  
+  // Dates
+  date          DateTime
+  doorsOpenAt   DateTime?
+  endsAt        DateTime?
+  
+  // Venue
+  venueId       String
+  venue         Venue         @relation(fields: [venueId], references: [id])
+  
+  // Promoter
+  promoterId    String
+  promoter      User          @relation("PromoterEvents", fields: [promoterId], references: [id])
+  
+  // Media
+  imageUrl      String?
+  coverUrl      String?
+  videoUrl      String?
+  
+  // Pricing
+  priceFrom     Int           // Minimum ticket price
+  priceTo       Int?          // Maximum ticket price
+  
+  // Status
+  status        EventStatus   @default(DRAFT)
+  isFeatured    Boolean       @default(false)
+  
+  // Metadata
+  ageRestriction Int?         // Minimum age
+  tags          String[]
+  
+  // Timestamps
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  publishedAt   DateTime?
+
+  // Relations
+  ticketTypes   TicketType[]
+  orders        Order[]
+  presales      Presale[]
+  holds         Hold[]
+  favorites     FavoriteEvent[]
+  coordinatorAssignments CoordinatorAssignment[] @relation("EventCoordinators")
+
+  @@index([date])
+  @@index([category])
+  @@index([status])
+  @@index([promoterId])
+  @@index([slug])
+}
+
+model FavoriteEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, eventId])
+}
+
+// ============================================
+// TICKETS
+// ============================================
+
+model TicketType {
+  id            String    @id @default(cuid())
+  eventId       String
+  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  name          String    // "VIP", "General", "Platino"
+  description   String?
+  price         Int       // Price in COP
+  
+  // Inventory
+  totalQuantity Int
+  soldQuantity  Int       @default(0)
+  
+  // Limits
+  maxPerOrder   Int       @default(6)
+  minPerOrder   Int       @default(1)
+  
+  // Section (for numbered seating)
+  sectionId     String?
+  
+  // Sale dates
+  saleStartsAt  DateTime?
+  saleEndsAt    DateTime?
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  tickets       Ticket[]
+  orderItems    OrderItem[]
+  
+  @@index([eventId])
+}
+
+enum TicketStatus {
+  RESERVED   // Locked but not paid
+  ACTIVE     // Paid and valid
+  USED       // Already scanned
+  CANCELLED  // Refunded or cancelled
+  TRANSFERRED // Transferred to another user
+}
+
+model Ticket {
+  id            String       @id @default(cuid())
+  ticketTypeId  String
+  ticketType    TicketType   @relation(fields: [ticketTypeId], references: [id])
+  
+  orderId       String
+  order         Order        @relation(fields: [orderId], references: [id])
+  
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  
+  // SafeTix - Dynamic QR code
+  safetixSecret String?      // TOTP secret for dynamic QR
+  
+  // Seat info (for numbered seating)
+  seatRow       String?
+  seatNumber    String?
+  section       String?
+  
+  // Status
+  status        TicketStatus @default(RESERVED)
+  usedAt        DateTime?
+  usedByDevice  String?      // Scanner device ID
+  
+  // Transfer history
+  originalUserId String?
+  transferredAt DateTime?
+  
+  // NFT (post-event)
+  nftTokenId    String?
+  nftMintedAt   DateTime?
+  
+  // Timestamps
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  
+  // Relations
+  auditLogs     AuditLog[]
+  
+  @@index([userId])
+  @@index([orderId])
+  @@index([status])
+}
+
+// ============================================
+// ORDERS & PAYMENTS
+// ============================================
+
+enum OrderStatus {
+  PENDING       // Created, awaiting payment
+  PROCESSING    // Payment in progress
+  PAID          // Payment confirmed
+  CANCELLED     // Order cancelled
+  REFUNDED      // Full refund
+  PARTIAL_REFUND // Partial refund
+  EXPIRED       // Lock expired without payment
+}
+
+enum PaymentMethod {
+  NEQUI
+  MERCADOPAGO
+  PSE
+  CREDIT_CARD
+  DEBIT_CARD
+  EFECTY
+  BALOTO
+  DAVIPLATA
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique @default(cuid())
+  
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  
+  eventId         String
+  event           Event         @relation(fields: [eventId], references: [id])
+  
+  // Amounts
+  subtotal        Int           // Ticket prices only
+  feesTotal       Int           // Service fees
+  taxesTotal      Int           // IVA on fees
+  discountTotal   Int           @default(0)
+  total           Int           // Grand total
+  
+  // Payment
+  status          OrderStatus   @default(PENDING)
+  paymentMethod   PaymentMethod?
+  paymentId       String?       // External payment reference
+  paidAt          DateTime?
+  
+  // Split Payment (group orders)
+  isGroupOrder    Boolean       @default(false)
+  groupOrderId    String?
+  groupOrder      GroupOrder?   @relation(fields: [groupOrderId], references: [id])
+  
+  // Discount/Presale
+  presaleId       String?
+  presale         Presale?      @relation(fields: [presaleId], references: [id])
+  discountCode    String?
+  
+  // Lock management
+  lockExpiresAt   DateTime?
+  
+  // Metadata
+  userAgent       String?
+  ipAddress       String?
+  
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  items           OrderItem[]
+  tickets         Ticket[]
+  
+  @@index([userId])
+  @@index([eventId])
+  @@index([status])
+  @@index([orderNumber])
+}
+
+model OrderItem {
+  id            String     @id @default(cuid())
+  orderId       String
+  order         Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  ticketTypeId  String
+  ticketType    TicketType @relation(fields: [ticketTypeId], references: [id])
+  
+  quantity      Int
+  unitPrice     Int
+  totalPrice    Int
+
+  @@index([orderId])
+}
+
+// ============================================
+// GROUP ORDERS (SPLIT PAYMENTS)
+// ============================================
+
+model GroupOrder {
+  id            String          @id @default(cuid())
+  createdById   String
+  
+  totalAmount   Int
+  status        GroupOrderStatus @default(PENDING)
+  
+  expiresAt     DateTime        // 24-72 hours to complete
+  
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  // Relations
+  orders        Order[]
+  participants  GroupParticipant[]
+}
+
+enum GroupOrderStatus {
+  PENDING
+  PARTIAL
+  COMPLETE
+  EXPIRED
+  CANCELLED
+}
+
+model GroupParticipant {
+  id            String      @id @default(cuid())
+  groupOrderId  String
+  groupOrder    GroupOrder  @relation(fields: [groupOrderId], references: [id], onDelete: Cascade)
+  
+  email         String
+  name          String?
+  
+  amountDue     Int
+  amountPaid    Int         @default(0)
+  status        ParticipantStatus @default(PENDING)
+  
+  inviteToken   String      @unique @default(cuid())
+  invitedAt     DateTime    @default(now())
+  paidAt        DateTime?
+
+  @@index([groupOrderId])
+}
+
+enum ParticipantStatus {
+  PENDING
+  PAID
+}
+
+// ============================================
+// PRESALES
+// ============================================
+
+enum PresaleType {
+  CODE              // Access code
+  CREDIT_CARD       // Specific card BINs
+  SUBSCRIPTION      // Platform subscribers
+  NFT               // NFT holders
+  EMAIL_DOMAIN      // Corporate emails
+  GENERAL           // Open to all
+}
+
+model Presale {
+  id              String       @id @default(cuid())
+  eventId         String
+  event           Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  name            String
+  type            PresaleType
+  
+  // Dates
+  startDate       DateTime
+  endDate         DateTime
+  
+  // Price modifier
+  priceModifier   Float?       // e.g., -0.10 for 10% off
+  
+  // Inventory allocation
+  totalAllocation Int?
+  usedAllocation  Int          @default(0)
+  
+  // Max per user
+  maxPerUser      Int          @default(4)
+  
+  // Priority (lower = higher priority)
+  priority        Int          @default(0)
+  
+  // Status
+  status          PresaleStatus @default(ACTIVE)
+  
+  // Timestamps
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  // Relations
+  accessRules     PresaleAccessRule[]
+  codes           PresaleCode[]
+  orders          Order[]
+
+  @@index([eventId])
+  @@index([startDate, endDate])
+}
+
+enum PresaleStatus {
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+model PresaleAccessRule {
+  id            String      @id @default(cuid())
+  presaleId     String
+  presale       Presale     @relation(fields: [presaleId], references: [id], onDelete: Cascade)
+  
+  type          PresaleType
+  
+  // For card BIN validation
+  cardBins      String[]
+  cardBrands    String[]
+  
+  // For subscription validation
+  subscriptionTiers String[]
+  
+  // For NFT validation
+  nftContracts  String[]
+  
+  // For email domain validation
+  allowedDomains String[]
+
+  @@index([presaleId])
+}
+
+model PresaleCode {
+  id            String       @id @default(cuid())
+  presaleId     String
+  presale       Presale      @relation(fields: [presaleId], references: [id], onDelete: Cascade)
+  
+  code          String
+  singleUse     Boolean      @default(false)
+  maxUses       Int?
+  
+  usedAt        DateTime?
+  usedById      String?
+  
+  createdAt     DateTime     @default(now())
+  
+  // Usage tracking
+  usages        PresaleCodeUsage[]
+
+  @@unique([presaleId, code])
+  @@index([code])
+}
+
+model PresaleCodeUsage {
+  id        String      @id @default(cuid())
+  codeId    String
+  code      PresaleCode @relation(fields: [codeId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  usedAt    DateTime    @default(now())
+
+  @@index([codeId])
+}
+
+// ============================================
+// HOLDS (INSTITUTIONAL BLOCKS)
+// ============================================
+
+enum HoldType {
+  SPONSOR
+  PRESS
+  ARTIST
+  PRODUCTION
+  VIP
+  COMP  // Complimentary
+}
+
+model Hold {
+  id            String    @id @default(cuid())
+  eventId       String
+  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  type          HoldType
+  name          String    // "Bancolombia", "El Tiempo", etc.
+  contactEmail  String?
+  
+  // What's being held
+  seatIds       String[]
+  sections      String[]
+  quantity      Int?
+  
+  // Release policy
+  autoRelease   Boolean   @default(false)
+  releaseDate   DateTime?
+  
+  // Status
+  status        HoldStatus @default(HELD)
+  
+  // Audit
+  notes         String?
+  createdBy     String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([eventId])
+}
+
+enum HoldStatus {
+  HELD
+  ASSIGNED
+  RELEASED
+  USED
+}
+
+// ============================================
+// NFT & WALLET
+// ============================================
+
+model UserWallet {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Custodial wallet (managed by platform)
+  address       String   @unique
+  encryptedKey  String   // Encrypted private key
+  
+  // Blockchain
+  chain         String   @default("polygon")
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  nfts          NFTCollectible[]
+}
+
+model NFTCollectible {
+  id            String     @id @default(cuid())
+  walletId      String
+  wallet        UserWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  
+  // On-chain data
+  tokenId       String
+  contractAddress String
+  chain         String     @default("polygon")
+  
+  // Metadata
+  eventName     String
+  eventDate     DateTime
+  venue         String
+  seatInfo      String?
+  imageUrl      String
+  
+  // Benefits
+  benefits      NFTBenefit[]
+  
+  mintedAt      DateTime   @default(now())
+
+  @@unique([contractAddress, tokenId])
+}
+
+model NFTBenefit {
+  id            String         @id @default(cuid())
+  nftId         String
+  nft           NFTCollectible @relation(fields: [nftId], references: [id], onDelete: Cascade)
+  
+  type          String         // "presale_access", "discount", "exclusive_content"
+  description   String
+  
+  validUntil    DateTime?
+  usageLimit    Int?
+  usageCount    Int            @default(0)
+  
+  isUsed        Boolean        @default(false)
+
+  @@index([nftId])
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?
+  
+  read      Boolean          @default(false)
+  readAt    DateTime?
+  
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([read])
+}
+
+enum NotificationType {
+  ORDER_CONFIRMED
+  EVENT_REMINDER
+  EVENT_CANCELLED
+  TICKET_TRANSFER
+  PRESALE_STARTING
+  NFT_MINTED
+  PAYMENT_REMINDER
+}
+
+// ============================================
+// AUDIT LOG (BLOCKCHAIN-READY)
+// ============================================
+
+enum AuditEntityType {
+  TICKET
+  ORDER
+  USER
+  EVENT
+  PAYMENT
+}
+
+model AuditLog {
+  id            String          @id @default(cuid())
+  
+  entityType    AuditEntityType
+  entityId      String
+  action        String          // "create", "transfer", "validate", "refund"
+  
+  // Actor
+  performedById String
+  performedByType String        // "customer", "admin", "system"
+  performedByIp String?
+  performedByDevice String?
+  
+  // State changes
+  previousState Json?
+  newState      Json?
+  metadata      Json?
+  
+  // Blockchain-style integrity
+  hash          String
+  previousHash  String
+  signature     String?
+  
+  // Ticket relation (optional)
+  ticketId      String?
+  ticket        Ticket?         @relation(fields: [ticketId], references: [id])
+  
+  timestamp     DateTime        @default(now())
+
+  @@index([entityType, entityId])
+  @@index([ticketId])
+  @@index([timestamp])
+}
+
+// ============================================
+// SETTLEMENTS
+// ============================================
+
+enum SettlementStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PAID
+}
+
+model Settlement {
+  id              String           @id @default(cuid())
+  eventId         String           @unique
+
+  // Revenue
+  grossRevenue    Int
+  ticketsSold     Int
+  averagePrice    Int
+
+  // Deductions stored as JSON
+  deductions      Json             // Array of deduction objects
+
+  // Net amount
+  netToPromoter   Int
+
+  // Status
+  status          SettlementStatus @default(DRAFT)
+  approvedBy      String?
+  approvedAt      DateTime?
+
+  // Payment
+  paidAt          DateTime?
+  paymentReference String?
+
+  // Report
+  reportUrl       String?          // PDF report URL
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([status])
+}
+
+// ============================================
+// COMMISSIONS (Admin Configurable)
+// ============================================
+
+enum CommissionType {
+  VOLUME          // Based on sales volume
+  PAYMENT_METHOD  // Based on payment method used
+}
+
+model Commission {
+  id            String          @id @default(cuid())
+  name          String
+  type          CommissionType
+
+  // For VOLUME type
+  minVolume     Int?            // Minimum sales volume (COP)
+  maxVolume     Int?            // Maximum sales volume (COP), null = unlimited
+
+  // Commission values
+  percentage    Float           // Commission percentage (e.g., 10 for 10%)
+  fixedFee      Float           @default(0)  // Fixed fee per transaction (COP)
+
+  // For PAYMENT_METHOD type
+  paymentMethod String?         // CARD, PSE, NEQUI, DAVIPLATA, etc.
+
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([type])
+  @@index([isActive])
+}
+
+// ============================================
+// TAXES (Admin Configurable)
+// ============================================
+
+model Tax {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique  // IVA, SAYCO, ACINPRO, RETEFUENTE, etc.
+  percentage  Float             // Tax percentage (e.g., 19 for 19%)
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([code])
+}
+
+// ============================================
+// PAYMENT PROVIDER CONFIG (Admin Configurable)
+// ============================================
+
+model PaymentProviderConfig {
+  id            String   @id @default(cuid())
+  provider      String   @unique  // NEQUI, MERCADOPAGO, COBRU
+  credentials   Json              // Encrypted credentials JSON
+  isEnabled     Boolean  @default(false)
+  isTestMode    Boolean  @default(true)
+  lastTestedAt  DateTime?
+  testStatus    String?           // SUCCESS, FAILED, null
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isEnabled])
+}
+
+// ============================================
+// VENUE MAPS (Interactive Seat Maps)
+// ============================================
+
+model VenueMap {
+  id              String       @id @default(cuid())
+  name            String
+  venueId         String?
+  venue           Venue?       @relation(fields: [venueId], references: [id])
+  eventId         String?      @unique
+  width           Int          @default(1200)
+  height          Int          @default(800)
+  backgroundColor String       @default("#f5f5f5")
+  backgroundImage String?
+  gridSize        Int          @default(20)
+  showGrid        Boolean      @default(true)
+  isTemplate      Boolean      @default(false)
+  templateName    String?
+  version         Int          @default(1)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  sections        MapSection[]
+  elements        MapElement[]
+
+  @@index([venueId])
+  @@index([isTemplate])
+}
+
+enum SectionType {
+  SEATED            // Numbered seats in rows
+  GENERAL_ADMISSION // Standing area with capacity
+  TABLES            // Tables with seats
+  STANDING          // Standing zone
+  VIP_AREA          // VIP section
+}
+
+enum SeatStatus {
+  AVAILABLE
+  SELECTED          // In purchase process
+  RESERVED          // Temporarily reserved
+  SOLD
+  BLOCKED           // Blocked by admin
+}
+
+model MapSection {
+  id            String       @id @default(cuid())
+  mapId         String
+  map           VenueMap     @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  name          String
+  type          SectionType  @default(GENERAL_ADMISSION)
+  color         String       @default("#3B82F6")
+  shape         String       @default("rectangle") // rectangle, circle, polygon
+  path          Json?        // For polygon: array of points [{x,y}]
+  x             Float
+  y             Float
+  width         Float
+  height        Float
+  rotation      Float        @default(0)
+  capacity      Int
+  description   String?
+  starRating    Int?         // View quality 1-5
+  isActive      Boolean      @default(true)
+  layer         Int          @default(1)
+  opacity       Float        @default(1)
+  ticketTypeId  String?
+  rowConfig     Json?        // {startRow: "A", rowCount: 10, seatsPerRow: 20, curved: false, spacing: {seat: 30, row: 35}}
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  seats         MapSeat[]
+  tables        MapTable[]
+
+  @@index([mapId])
+  @@index([ticketTypeId])
+}
+
+model MapSeat {
+  id            String       @id @default(cuid())
+  sectionId     String
+  section       MapSection   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  row           String       // "A", "B", etc.
+  number        Int          // 1, 2, 3...
+  label         String?      // Custom label
+  x             Float
+  y             Float
+  status        SeatStatus   @default(AVAILABLE)
+  specialType   String?      // "wheelchair", "limited_view", "companion"
+  orderId       String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([sectionId, row, number])
+  @@index([sectionId])
+  @@index([status])
+}
+
+model MapTable {
+  id            String       @id @default(cuid())
+  sectionId     String
+  section       MapSection   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  number        Int
+  label         String?
+  shape         String       @default("round") // round, rectangle, square
+  seats         Int          @default(8)
+  x             Float
+  y             Float
+  width         Float        @default(80)
+  height        Float        @default(80)
+  rotation      Float        @default(0)
+  status        SeatStatus   @default(AVAILABLE)
+  orderId       String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([sectionId])
+  @@index([status])
+}
+
+enum ElementType {
+  STAGE
+  BAR
+  BATHROOM_M
+  BATHROOM_F
+  BATHROOM
+  EXIT
+  ENTRANCE
+  STAIRS
+  ELEVATOR
+  TEXT
+  IMAGE
+  LINE
+  WALL
+  COLUMN
+  DANCE_FLOOR
+  DJ_BOOTH
+  VIP_LOUNGE
+}
+
+model MapElement {
+  id            String       @id @default(cuid())
+  mapId         String
+  map           VenueMap     @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  type          ElementType
+  name          String?
+  x             Float
+  y             Float
+  width         Float
+  height        Float
+  rotation      Float        @default(0)
+  color         String?
+  icon          String?      // Lucide icon name
+  text          String?      // For text elements
+  fontSize      Int?
+  imageUrl      String?      // For image elements
+  layer         Int          @default(0)
+  isLocked      Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+
+  @@index([mapId])
+  @@index([type])
+}
+
+// ============================================
+// COORDINATOR ASSIGNMENTS
+// ============================================
+
+model CoordinatorAssignment {
+  id            String   @id @default(cuid())
+  coordinatorId String
+  coordinator   User     @relation("CoordinatorAssignments", fields: [coordinatorId], references: [id], onDelete: Cascade)
+  eventId       String
+  event         Event    @relation("EventCoordinators", fields: [eventId], references: [id], onDelete: Cascade)
+
+  // Permisos granulares
+  canViewOrders      Boolean @default(true)
+  canEditPresales    Boolean @default(true)
+  canEditMap         Boolean @default(true)
+  canUploadImages    Boolean @default(true)
+  canEditTicketTypes Boolean @default(true)
+  canEditEvent       Boolean @default(true)
+  canViewReports     Boolean @default(true)
+  canScan            Boolean @default(true)
+
+  // Audit
+  assignedAt    DateTime @default(now())
+  assignedById  String
+  assignedBy    User     @relation("AssignedByUser", fields: [assignedById], references: [id])
+  isActive      Boolean  @default(true)
+
+  @@unique([coordinatorId, eventId])
+  @@index([coordinatorId])
+  @@index([eventId])
+  @@index([isActive])
+}
