@@ -4,9 +4,12 @@ import { Redis } from '@upstash/redis';
  * Upstash Redis client for serverless environments
  * Uses REST API - works perfectly with Vercel Edge Functions
  */
+const redisUrl = (process.env.UPSTASH_REDIS_REST_URL || '').trim();
+const redisToken = (process.env.UPSTASH_REDIS_REST_TOKEN || '').trim();
+
 export const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    url: redisUrl,
+    token: redisToken,
 });
 
 // Helper functions for common operations
