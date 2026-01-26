@@ -53,10 +53,13 @@ function LoginForm() {
     const handleGoogleLogin = async () => {
         const supabase = getSupabaseBrowserClient();
 
+        // Use env variable for production URL, fallback to window.location.origin
+        const siteUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+
         await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: `${window.location.origin}/auth/callback?next=${callbackUrl}`,
+                redirectTo: `${siteUrl}/auth/callback?next=${callbackUrl}`,
             },
         });
     };
