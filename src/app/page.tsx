@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { EventCard } from '@/components/events/event-card';
@@ -10,6 +10,38 @@ import {
   ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
+
+// Custom hook for touch swipe
+function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const onTouchEnd = useCallback(() => {
+    if (!touchStartX.current || !touchEndX.current) return;
+
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      onSwipeLeft();
+    } else if (isRightSwipe) {
+      onSwipeRight();
+    }
+  }, [onSwipeLeft, onSwipeRight]);
+
+  return { onTouchStart, onTouchMove, onTouchEnd };
+}
 
 // Mock events data - will be replaced with real data from Supabase
 const mockEvents = [
@@ -111,13 +143,25 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     setActiveIndex((prev) => (prev === 0 ? mockEvents.length - 1 : prev - 1));
-  };
+  }, []);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setActiveIndex((prev) => (prev === mockEvents.length - 1 ? 0 : prev + 1));
-  };
+  }, []);
+
+  const handleHeroPrev = useCallback(() => {
+    setHeroBannerIndex((prev) => (prev === 0 ? heroBanners.length - 1 : prev - 1));
+  }, []);
+
+  const handleHeroNext = useCallback(() => {
+    setHeroBannerIndex((prev) => (prev === heroBanners.length - 1 ? 0 : prev + 1));
+  }, []);
+
+  // Touch swipe handlers
+  const carouselSwipe = useSwipe(handleNext, handlePrev);
+  const heroSwipe = useSwipe(handleHeroNext, handleHeroPrev);
 
   // Get visible events (prev, current, next)
   const getVisibleEvents = () => {
@@ -160,7 +204,12 @@ export default function HomePage() {
         {/* Hero Banner - Full Width Image */}
         <section className="px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-3 sm:pb-4">
           <div className="max-w-6xl mx-auto">
-            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl">
+            <div
+              className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl touch-pan-y"
+              onTouchStart={heroSwipe.onTouchStart}
+              onTouchMove={heroSwipe.onTouchMove}
+              onTouchEnd={heroSwipe.onTouchEnd}
+            >
               {/* Full width image - taller on mobile */}
               <div className="aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] relative">
                 <img
@@ -256,23 +305,28 @@ export default function HomePage() {
             </div>
 
             {/* Carousel with Center Focus */}
-            <div className="relative">
-              {/* Navigation Arrows - Floating over cards */}
+            <div
+              className="relative touch-pan-y"
+              onTouchStart={carouselSwipe.onTouchStart}
+              onTouchMove={carouselSwipe.onTouchMove}
+              onTouchEnd={carouselSwipe.onTouchEnd}
+            >
+              {/* Navigation Arrows - Floating over cards, hidden on mobile */}
               <button
                 onClick={handlePrev}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-12 sm:h-12 bg-white/95 rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-12 sm:h-12 bg-white/95 rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors hidden sm:flex"
               >
                 <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-[#212121]" />
               </button>
               <button
                 onClick={handleNext}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-12 sm:h-12 bg-white/95 rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-12 sm:h-12 bg-white/95 rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors hidden sm:flex"
               >
                 <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-[#212121]" />
               </button>
 
               {/* Cards Container - Side cards overflow beyond screen edges */}
-              <div className="flex items-stretch justify-center">
+              <div className="flex items-stretch justify-center select-none">
                 {getVisibleEvents().map((event, index) => (
                   <CarouselCard
                     key={`${event.id}-${index}`}
