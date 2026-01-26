@@ -20,7 +20,9 @@ import {
     ChevronDown,
     ChevronLeft,
     Settings,
-    Zap
+    Zap,
+    X,
+    Menu
 } from 'lucide-react';
 
 interface NavItem {
@@ -120,9 +122,11 @@ interface CoordinatorSidebarProps {
         canViewReports: boolean;
         canScan: boolean;
     };
+    isOpen?: boolean;
+    onClose?: () => void;
 }
 
-export function CoordinatorSidebar({ user, currentEvent, permissions }: CoordinatorSidebarProps) {
+export function CoordinatorSidebar({ user, currentEvent, permissions, isOpen = true, onClose }: CoordinatorSidebarProps) {
     const pathname = usePathname();
     const params = useParams();
     const eventId = params?.eventId as string;
@@ -133,11 +137,17 @@ export function CoordinatorSidebar({ user, currentEvent, permissions }: Coordina
         return permissions[permission as keyof typeof permissions] ?? false;
     };
 
-    return (
-        <aside className="w-56 bg-[#111318] text-white flex flex-col min-h-screen">
+    const handleLinkClick = () => {
+        if (onClose) {
+            onClose();
+        }
+    };
+
+    const sidebarContent = (
+        <>
             {/* Logo */}
             <div className="h-14 flex items-center px-4 border-b border-white/5">
-                <Link href="/coordinator" className="flex items-center gap-2">
+                <Link href="/coordinator" className="flex items-center gap-2" onClick={handleLinkClick}>
                     <div className="w-7 h-7 bg-[#E53935] rounded-md flex items-center justify-center">
                         <span className="text-white font-bold text-sm">E</span>
                     </div>
@@ -146,6 +156,15 @@ export function CoordinatorSidebar({ user, currentEvent, permissions }: Coordina
                 <span className="ml-auto px-1.5 py-0.5 bg-amber-500/15 text-amber-400 text-[10px] font-medium rounded">
                     COORD
                 </span>
+                {/* Close button for mobile */}
+                {onClose && (
+                    <button
+                        onClick={onClose}
+                        className="lg:hidden p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/10 ml-2"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
             </div>
 
             {/* Navigation */}
@@ -163,6 +182,7 @@ export function CoordinatorSidebar({ user, currentEvent, permissions }: Coordina
                             <li key={item.name}>
                                 <Link
                                     href={item.href}
+                                    onClick={handleLinkClick}
                                     className={cn(
                                         'flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-all text-[13px]',
                                         isActive
@@ -215,6 +235,7 @@ export function CoordinatorSidebar({ user, currentEvent, permissions }: Coordina
                                 <li>
                                     <Link
                                         href="/coordinator/eventos"
+                                        onClick={handleLinkClick}
                                         className="flex items-center gap-2 px-2.5 py-1.5 text-gray-500 hover:text-gray-300 text-xs"
                                     >
                                         <ChevronLeft className="w-3.5 h-3.5" />
@@ -233,6 +254,7 @@ export function CoordinatorSidebar({ user, currentEvent, permissions }: Coordina
                                         <li key={item.name}>
                                             <Link
                                                 href={href}
+                                                onClick={handleLinkClick}
                                                 className={cn(
                                                     'flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-all text-[13px]',
                                                     isActive
@@ -273,6 +295,43 @@ export function CoordinatorSidebar({ user, currentEvent, permissions }: Coordina
                     </Link>
                 </div>
             </div>
-        </aside>
+        </>
+    );
+
+    return (
+        <>
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:flex w-56 bg-[#111318] text-white flex-col min-h-screen sticky top-0">
+                {sidebarContent}
+            </aside>
+
+            {/* Mobile Sidebar Overlay */}
+            {isOpen && onClose && (
+                <div className="lg:hidden fixed inset-0 z-50">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        onClick={onClose}
+                    />
+
+                    {/* Sidebar */}
+                    <aside className="absolute left-0 top-0 bottom-0 w-64 bg-[#111318] text-white flex flex-col animate-in slide-in-from-left duration-300">
+                        {sidebarContent}
+                    </aside>
+                </div>
+            )}
+        </>
+    );
+}
+
+// Mobile menu toggle button component
+export function MobileMenuButton({ onClick }: { onClick: () => void }) {
+    return (
+        <button
+            onClick={onClick}
+            className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+            <Menu className="w-5 h-5" />
+        </button>
     );
 }

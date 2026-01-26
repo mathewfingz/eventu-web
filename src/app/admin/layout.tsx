@@ -1,10 +1,10 @@
+'use client';
+
+import { useState } from 'react';
 import { AdminSidebar } from '@/components/admin/sidebar';
 import { AdminHeader } from '@/components/admin/header';
 
 // DEV: Mock user for development without auth
-const DEV_MODE = process.env.NODE_ENV === 'development';
-const BYPASS_AUTH = process.env.BYPASS_AUTH === 'true';
-
 const mockUser = {
     id: 'dev-admin-123',
     name: 'Super Admin',
@@ -12,30 +12,33 @@ const mockUser = {
     role: 'SUPERADMIN' as const,
 };
 
-export default async function AdminLayout({
+export default function AdminLayout({
     children
 }: {
     children: React.ReactNode
 }) {
-    // In production, this would check for real auth
-    // For now, we use mock user in development
-    const user = DEV_MODE || BYPASS_AUTH ? mockUser : null;
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    if (!user) {
-        // In production, redirect to login
-        // redirect('/auth/login?error=unauthorized');
-    }
+    // In production, this would check for real auth
+    const user = mockUser;
 
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-gray-50">
             {/* Sidebar */}
-            <AdminSidebar user={user || mockUser} />
+            <AdminSidebar
+                user={user}
+                isOpen={isMobileMenuOpen}
+                onClose={() => setIsMobileMenuOpen(false)}
+            />
 
             {/* Main content */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <AdminHeader user={user || mockUser} />
+            <div className="flex-1 flex flex-col min-h-screen lg:min-w-0">
+                <AdminHeader
+                    user={user}
+                    onMenuClick={() => setIsMobileMenuOpen(true)}
+                />
 
-                <main className="flex-1 overflow-y-auto p-6">
+                <main className="flex-1 overflow-y-auto p-4 lg:p-6">
                     {children}
                 </main>
             </div>

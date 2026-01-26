@@ -9,7 +9,8 @@ import {
     ChevronDown,
     Calendar,
     Check,
-    Sparkles
+    Sparkles,
+    Menu
 } from 'lucide-react';
 
 interface Event {
@@ -27,13 +28,15 @@ interface CoordinatorHeaderProps {
     events?: Event[];
     currentEventId?: string;
     onEventChange?: (eventId: string) => void;
+    onMenuClick?: () => void;
 }
 
 export function CoordinatorHeader({
     user,
     events = [],
     currentEventId,
-    onEventChange
+    onEventChange,
+    onMenuClick
 }: CoordinatorHeaderProps) {
     const pathname = usePathname();
     const [isEventSelectorOpen, setIsEventSelectorOpen] = useState(false);
@@ -64,10 +67,25 @@ export function CoordinatorHeader({
     );
 
     return (
-        <header className="h-12 bg-white border-b border-gray-100 flex items-center justify-between px-4">
-            {/* Left side - Page title */}
-            <div className="flex items-center gap-3">
-                <div>
+        <header className="h-12 bg-white border-b border-gray-100 flex items-center justify-between px-3 lg:px-4">
+            {/* Left side - Mobile menu button + Page title */}
+            <div className="flex items-center gap-2 lg:gap-3">
+                {/* Mobile menu button */}
+                {onMenuClick && (
+                    <button
+                        onClick={onMenuClick}
+                        className="lg:hidden p-1.5 -ml-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                        <Menu className="w-5 h-5" />
+                    </button>
+                )}
+
+                {/* Mobile logo */}
+                <div className="lg:hidden w-6 h-6 bg-[#E53935] rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">E</span>
+                </div>
+
+                <div className="hidden sm:block">
                     <div className="flex items-center gap-2">
                         <h1 className="text-sm font-semibold text-gray-900">
                             {pageInfo.title}
@@ -75,7 +93,7 @@ export function CoordinatorHeader({
                         {pageInfo.subtitle && (
                             <>
                                 <span className="text-gray-300">/</span>
-                                <span className="text-xs text-gray-500">{pageInfo.subtitle}</span>
+                                <span className="text-xs text-gray-500 hidden md:inline">{pageInfo.subtitle}</span>
                             </>
                         )}
                     </div>

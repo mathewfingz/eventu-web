@@ -60,6 +60,7 @@ export default function CoordinatorLayout({ children }: CoordinatorLayoutProps) 
     const [currentEvent, setCurrentEvent] = useState<typeof mockEvents[0] | null>(null);
     const [permissions, setPermissions] = useState(mockPermissions);
     const [isLoading, setIsLoading] = useState(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Fetch events on mount
     useEffect(() => {
@@ -117,20 +118,23 @@ export default function CoordinatorLayout({ children }: CoordinatorLayoutProps) 
                 user={mockUser}
                 currentEvent={currentEvent}
                 permissions={permissions}
+                isOpen={isMobileMenuOpen}
+                onClose={() => setIsMobileMenuOpen(false)}
             />
 
             {/* Main content */}
-            <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-screen lg:min-w-0">
                 {/* Header */}
                 <CoordinatorHeader
                     user={mockUser}
                     events={events}
                     currentEventId={eventId}
                     onEventChange={handleEventChange}
+                    onMenuClick={() => setIsMobileMenuOpen(true)}
                 />
 
                 {/* Page content */}
-                <main className="flex-1 overflow-y-auto">
+                <main className="flex-1 overflow-y-auto p-3 lg:p-0">
                     {children}
                 </main>
             </div>

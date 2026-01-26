@@ -63,41 +63,7 @@ const formatPrice = (value: number) => {
 
 export default function OrganizerDashboard() {
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center gap-4">
-                            <Link href="/" className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-[#E53935] rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                                    E
-                                </div>
-                                <span className="text-xl font-bold text-[#E53935] font-[Poppins,sans-serif]">
-                                    Eventu
-                                </span>
-                            </Link>
-                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                                Organizador
-                            </span>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm text-gray-600">
-                                🔧 Modo Desarrollo
-                            </span>
-                            <Link
-                                href="/"
-                                className="text-gray-600 hover:text-gray-900"
-                            >
-                                Volver al inicio
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-6xl mx-auto">
                 {/* Welcome */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-[#212121] font-[Poppins,sans-serif]">
@@ -269,7 +235,6 @@ export default function OrganizerDashboard() {
                         ))}
                     </div>
                 </div>
-            </main>
         </div>
     );
 }

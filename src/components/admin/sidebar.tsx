@@ -18,7 +18,9 @@ import {
     LogOut,
     ChevronDown,
     ShoppingCart,
-    Map
+    Map,
+    X,
+    Menu
 } from 'lucide-react';
 
 const navigation = [
@@ -108,9 +110,11 @@ interface AdminSidebarProps {
         name?: string | null;
         email?: string | null;
     };
+    isOpen?: boolean;
+    onClose?: () => void;
 }
 
-export function AdminSidebar({ user }: AdminSidebarProps) {
+export function AdminSidebar({ user, isOpen = true, onClose }: AdminSidebarProps) {
     const pathname = usePathname();
     const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
@@ -122,19 +126,35 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
         );
     };
 
-    return (
-        <aside className="w-64 bg-gray-900 text-white flex flex-col">
+    const handleLinkClick = () => {
+        // Close mobile menu when clicking a link
+        if (onClose) {
+            onClose();
+        }
+    };
+
+    const sidebarContent = (
+        <>
             {/* Logo */}
-            <div className="h-16 flex items-center px-6 border-b border-gray-800">
-                <Link href="/admin" className="flex items-center gap-2">
+            <div className="h-16 flex items-center justify-between px-6 border-b border-gray-800">
+                <Link href="/admin" className="flex items-center gap-2" onClick={handleLinkClick}>
                     <div className="w-8 h-8 bg-[#E53935] rounded-lg flex items-center justify-center">
                         <span className="text-white font-bold">E</span>
                     </div>
                     <span className="font-bold text-xl">Eventu</span>
                 </Link>
-                <span className="ml-2 px-2 py-0.5 bg-[#E53935]/20 text-[#E53935] text-xs rounded-full">
+                <span className="px-2 py-0.5 bg-[#E53935]/20 text-[#E53935] text-xs rounded-full">
                     Admin
                 </span>
+                {/* Close button for mobile */}
+                {onClose && (
+                    <button
+                        onClick={onClose}
+                        className="lg:hidden p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 ml-2"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
             </div>
 
             {/* Navigation */}
@@ -176,6 +196,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                                                     <li key={child.href}>
                                                         <Link
                                                             href={child.href}
+                                                            onClick={handleLinkClick}
                                                             className={cn(
                                                                 'block px-3 py-2 rounded-lg text-sm transition-colors',
                                                                 pathname === child.href
@@ -193,6 +214,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                                 ) : (
                                     <Link
                                         href={item.href}
+                                        onClick={handleLinkClick}
                                         className={cn(
                                             'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors',
                                             isActive
@@ -232,6 +254,43 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                     </button>
                 </div>
             </div>
-        </aside>
+        </>
+    );
+
+    return (
+        <>
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:flex w-64 bg-gray-900 text-white flex-col h-screen sticky top-0">
+                {sidebarContent}
+            </aside>
+
+            {/* Mobile Sidebar Overlay */}
+            {isOpen && onClose && (
+                <div className="lg:hidden fixed inset-0 z-50">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        onClick={onClose}
+                    />
+
+                    {/* Sidebar */}
+                    <aside className="absolute left-0 top-0 bottom-0 w-72 bg-gray-900 text-white flex flex-col animate-in slide-in-from-left duration-300">
+                        {sidebarContent}
+                    </aside>
+                </div>
+            )}
+        </>
+    );
+}
+
+// Mobile menu toggle button component
+export function MobileMenuButton({ onClick }: { onClick: () => void }) {
+    return (
+        <button
+            onClick={onClick}
+            className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+            <Menu className="w-6 h-6" />
+        </button>
     );
 }
