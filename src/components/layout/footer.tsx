@@ -9,11 +9,11 @@ import {
 } from 'lucide-react';
 
 const footerLinks = {
-    dashboards: [
-        { label: 'Mi Dashboard', href: '/dashboard' },
-        { label: 'Mis Boletas', href: '/dashboard/tickets' },
-        { label: 'Panel Organizador', href: '/organizer/settlements' },
-        { label: 'Escáner Coordinador', href: '/coordinator/scanner' },
+    events: [
+        { label: 'Conciertos', href: '/events?category=concerts' },
+        { label: 'Festivales', href: '/events?category=festivals' },
+        { label: 'Teatro', href: '/events?category=theater' },
+        { label: 'Deportes', href: '/events?category=sports' },
     ],
     company: [
         { label: 'Nosotros', href: '/about' },
@@ -103,11 +103,11 @@ export function Footer() {
                         </div>
                     </div>
 
-                    {/* Dashboards links */}
+                    {/* Events links */}
                     <div>
-                        <h3 className="font-semibold mb-4 text-[#E53935]">🎫 Dashboards</h3>
+                        <h3 className="font-semibold mb-4 text-[#E53935]">🎫 Eventos</h3>
                         <ul className="space-y-2">
-                            {footerLinks.dashboards.map((link) => (
+                            {footerLinks.events.map((link) => (
                                 <li key={link.href}>
                                     <Link
                                         href={link.href}

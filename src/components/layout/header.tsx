@@ -46,7 +46,7 @@ export function Header({ isLoggedIn = false, userName, cartCount = 0 }: HeaderPr
                         </Link>
 
                         <Link
-                            href="/trust"
+                            href="/confiar"
                             className="text-[#212121] hover:text-[#E53935] transition-colors font-medium flex items-center gap-1.5"
                         >
                             <ShieldCheck className="w-4 h-4" />
@@ -146,7 +146,7 @@ export function Header({ isLoggedIn = false, userName, cartCount = 0 }: HeaderPr
                     </Link>
 
                     <Link
-                        href="/trust"
+                        href="/confiar"
                         onClick={() => setIsMenuOpen(false)}
                         className="flex items-center gap-2 text-[#212121] hover:text-[#E53935] font-medium py-2"
                     >

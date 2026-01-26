@@ -1,4 +1,5 @@
 import { FileText } from 'lucide-react';
+import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 
 export const metadata = {
@@ -9,15 +10,16 @@ export const metadata = {
 export default function TermsPage() {
     return (
         <>
-            <main className="min-h-screen bg-[#121212] text-white">
+            <Header />
+            <main className="min-h-screen bg-white text-[#212121]">
                 {/* Hero */}
-                <section className="relative py-24 px-4 bg-gradient-to-br from-[#E53935]/20 to-transparent">
+                <section className="relative py-24 px-4 bg-gradient-to-br from-[#E53935]/10 to-transparent">
                     <div className="max-w-4xl mx-auto text-center">
                         <FileText className="w-16 h-16 text-[#E53935] mx-auto mb-6" />
-                        <h1 className="text-5xl font-bold mb-6 font-[Poppins,sans-serif]">
+                        <h1 className="text-5xl font-bold mb-6 font-[Poppins,sans-serif] text-[#212121]">
                             Términos y Condiciones
                         </h1>
-                        <p className="text-gray-400">
+                        <p className="text-gray-500">
                             Última actualización: 24 de enero de 2026
                         </p>
                     </div>
@@ -25,7 +27,7 @@ export default function TermsPage() {
 
                 {/* Content */}
                 <section className="py-16 px-4">
-                    <div className="max-w-3xl mx-auto prose prose-invert prose-lg">
+                    <div className="max-w-3xl mx-auto prose prose-lg prose-gray">
                         <h2>1. Aceptación de los Términos</h2>
                         <p>
                             Al acceder y utilizar la plataforma Eventu (el &quot;Servicio&quot;),

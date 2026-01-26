@@ -1,4 +1,5 @@
 import { ChevronDown, Search, HelpCircle } from 'lucide-react';
+import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 
 export const metadata = {
@@ -84,14 +85,15 @@ const faqCategories = [
 export default function FAQPage() {
     return (
         <>
-            <main className="min-h-screen bg-[#121212] text-white">
+            <Header />
+            <main className="min-h-screen bg-white text-[#212121]">
                 {/* Hero */}
-                <section className="relative py-24 px-4 bg-gradient-to-br from-[#E53935]/20 to-transparent">
+                <section className="relative py-24 px-4 bg-gradient-to-br from-[#E53935]/10 to-transparent">
                     <div className="max-w-4xl mx-auto text-center">
-                        <h1 className="text-5xl font-bold mb-6 font-[Poppins,sans-serif]">
+                        <h1 className="text-5xl font-bold mb-6 font-[Poppins,sans-serif] text-[#212121]">
                             Preguntas Frecuentes
                         </h1>
-                        <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+                        <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
                             Encuentra respuestas rápidas a tus dudas.
                         </p>
 
@@ -101,7 +103,7 @@ export default function FAQPage() {
                             <input
                                 type="text"
                                 placeholder="Buscar pregunta..."
-                                className="w-full pl-12 pr-4 py-4 bg-[#1E1E1E] border border-white/10 rounded-xl focus:outline-none focus:border-[#E53935]"
+                                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#E53935] text-[#212121]"
                             />
                         </div>
                     </div>
@@ -112,18 +114,18 @@ export default function FAQPage() {
                     <div className="max-w-4xl mx-auto">
                         {faqCategories.map((category) => (
                             <div key={category.name} className="mb-12">
-                                <h2 className="text-2xl font-bold mb-6">{category.name}</h2>
+                                <h2 className="text-2xl font-bold mb-6 text-[#212121]">{category.name}</h2>
                                 <div className="space-y-4">
                                     {category.questions.map((faq, index) => (
                                         <details
                                             key={index}
-                                            className="group bg-[#1E1E1E] rounded-xl overflow-hidden"
+                                            className="group bg-gray-50 rounded-xl overflow-hidden border border-gray-100"
                                         >
                                             <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
-                                                <span className="font-medium pr-4">{faq.q}</span>
+                                                <span className="font-medium pr-4 text-[#212121]">{faq.q}</span>
                                                 <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform flex-shrink-0" />
                                             </summary>
-                                            <div className="px-6 pb-6 text-gray-400">
+                                            <div className="px-6 pb-6 text-gray-600">
                                                 {faq.a}
                                             </div>
                                         </details>
@@ -135,11 +137,11 @@ export default function FAQPage() {
                 </section>
 
                 {/* Still need help */}
-                <section className="py-16 px-4 bg-[#1E1E1E]">
+                <section className="py-16 px-4 bg-gray-50">
                     <div className="max-w-xl mx-auto text-center">
                         <HelpCircle className="w-12 h-12 text-[#E53935] mx-auto mb-4" />
-                        <h2 className="text-3xl font-bold mb-4">¿No encontraste tu respuesta?</h2>
-                        <p className="text-gray-300 mb-8">
+                        <h2 className="text-3xl font-bold mb-4 text-[#212121]">¿No encontraste tu respuesta?</h2>
+                        <p className="text-gray-600 mb-8">
                             Nuestro equipo de soporte está listo para ayudarte.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -151,7 +153,7 @@ export default function FAQPage() {
                             </a>
                             <a
                                 href="/contact"
-                                className="px-8 py-4 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-colors"
+                                className="px-8 py-4 bg-white text-[#212121] border border-gray-200 rounded-full font-semibold hover:bg-gray-100 transition-colors"
                             >
                                 Contactar
                             </a>
