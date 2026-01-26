@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { verifyCoordinatorAccess } from '@/lib/coordinator-auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ eventId: string }> }
@@ -42,8 +44,7 @@ export async function GET(
         },
         _count: {
           select: {
-            orders: true,
-            tickets: true
+            orders: true
           }
         }
       }
@@ -156,6 +157,7 @@ export async function PATCH(
     ];
 
     // Filter out fields that are not allowed
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {};
     for (const field of allowedFields) {
       if (body[field] !== undefined) {

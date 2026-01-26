@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { verifyCoordinatorAccess } from '@/lib/coordinator-auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ eventId: string }> }
@@ -45,6 +47,7 @@ export async function GET(
 
     if (!map) {
       // Check if venue has a template map
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const event = await prisma.event.findUnique({
         where: { id: eventId },
         include: {
@@ -68,27 +71,28 @@ export async function GET(
 
     // Get inventory stats for each section
     const sectionsWithStats = await Promise.all(
-      map.sections.map(async (section) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      map.sections.map(async (section: any) => {
         const ticketType = section.ticketTypeId
           ? await prisma.ticketType.findUnique({
-              where: { id: section.ticketTypeId },
-              select: {
-                id: true,
-                name: true,
-                price: true,
-                totalQuantity: true,
-                soldQuantity: true
-              }
-            })
+            where: { id: section.ticketTypeId },
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              totalQuantity: true,
+              soldQuantity: true
+            }
+          })
           : null;
 
         // Count seat statuses
         const seatStats = {
           total: section.seats.length,
-          available: section.seats.filter(s => s.status === 'AVAILABLE').length,
-          sold: section.seats.filter(s => s.status === 'SOLD').length,
-          reserved: section.seats.filter(s => s.status === 'RESERVED').length,
-          blocked: section.seats.filter(s => s.status === 'BLOCKED').length
+          available: section.seats.filter((s: { status: string }) => s.status === 'AVAILABLE').length,
+          sold: section.seats.filter((s: { status: string }) => s.status === 'SOLD').length,
+          reserved: section.seats.filter((s: { status: string }) => s.status === 'RESERVED').length,
+          blocked: section.seats.filter((s: { status: string }) => s.status === 'BLOCKED').length
         };
 
         return {
@@ -199,7 +203,7 @@ export async function PUT(
     // Update sections if provided
     if (sections && Array.isArray(sections)) {
       // Delete removed sections (this will cascade to seats/tables)
-      const sectionIds = sections.filter(s => s.id).map(s => s.id);
+      const sectionIds = sections.filter((s: { id?: string }) => s.id).map((s: { id: string }) => s.id);
       await prisma.mapSection.deleteMany({
         where: {
           mapId: map.id,
@@ -269,7 +273,7 @@ export async function PUT(
       });
 
       await prisma.mapElement.createMany({
-        data: elements.map(el => ({
+        data: elements.map((el: any) => ({
           mapId: map!.id,
           type: el.type,
           name: el.name,

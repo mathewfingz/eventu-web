@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getQueuePosition, verifyAdmission, isQueueActive } from '@/lib/inventory/queue';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Get queue status for current session
  */

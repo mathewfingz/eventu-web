@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/events/[eventId] - Get event details with stats
 export async function GET(
   request: NextRequest,
@@ -39,7 +41,7 @@ export async function GET(
         orders: {
           where: {
             status: {
-              in: ['PAID', 'COMPLETED'],
+              in: ['PAID'],
             },
           },
           select: {
@@ -63,7 +65,6 @@ export async function GET(
         _count: {
           select: {
             orders: true,
-            tickets: true,
           },
         },
       },

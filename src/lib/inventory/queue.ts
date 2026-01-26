@@ -1,11 +1,11 @@
 /**
  * Virtual Queue System
- * 
+ *
  * Queue-it style virtual waiting room for high-demand events.
  * Uses Redis sorted sets for fair, first-come-first-served ordering.
  */
 
-import { getRedis } from '../redis';
+import { redis } from '../redis';
 
 const QUEUE_PREFIX = 'queue:';
 const ADMITTED_PREFIX = 'admitted:';
@@ -44,7 +44,6 @@ export async function activateQueue(
     admissionRate: number = 100 // users per minute
 ): Promise<boolean> {
     try {
-        const redis = getRedis();
         const configKey = `${QUEUE_PREFIX}${eventId}:config`;
 
         await redis.hset(configKey, {
@@ -66,10 +65,9 @@ export async function activateQueue(
  */
 export async function deactivateQueue(eventId: string): Promise<boolean> {
     try {
-        const redis = getRedis();
         const configKey = `${QUEUE_PREFIX}${eventId}:config`;
 
-        await redis.hset(configKey, 'active', '0');
+        await redis.hset(configKey, { active: '0' });
 
         console.log(`[Queue] Deactivated for event ${eventId}`);
         return true;
@@ -84,7 +82,6 @@ export async function deactivateQueue(eventId: string): Promise<boolean> {
  */
 export async function isQueueActive(eventId: string): Promise<boolean> {
     try {
-        const redis = getRedis();
         const configKey = `${QUEUE_PREFIX}${eventId}:config`;
 
         const active = await redis.hget(configKey, 'active');
@@ -103,7 +100,6 @@ export async function joinQueue(
     sessionId: string
 ): Promise<QueueEntry | null> {
     try {
-        const redis = getRedis();
         const queueKey = `${QUEUE_PREFIX}${eventId}:waiting`;
         const configKey = `${QUEUE_PREFIX}${eventId}:config`;
 
@@ -116,7 +112,7 @@ export async function joinQueue(
         const now = Date.now();
 
         // Add to sorted set with timestamp as score
-        await redis.zadd(queueKey, now, sessionId);
+        await redis.zadd(queueKey, { score: now, member: sessionId });
 
         // Store user data
         const userKey = `${QUEUE_PREFIX}${eventId}:user:${sessionId}`;
@@ -131,7 +127,8 @@ export async function joinQueue(
         const position = await redis.zrank(queueKey, sessionId);
 
         // Get admission rate for wait estimation
-        const admissionRate = parseInt(await redis.hget(configKey, 'admissionRate') || '100', 10);
+        const admissionRateStr = await redis.hget(configKey, 'admissionRate');
+        const admissionRate = parseInt((admissionRateStr as string) || '100', 10);
         const estimatedWait = Math.ceil(((position || 0) / admissionRate) * 60); // seconds
 
         console.log(`[Queue] ${sessionId} joined at position ${(position || 0) + 1}`);
@@ -158,7 +155,6 @@ export async function getQueuePosition(
     sessionId: string
 ): Promise<QueueEntry | null> {
     try {
-        const redis = getRedis();
         const queueKey = `${QUEUE_PREFIX}${eventId}:waiting`;
         const configKey = `${QUEUE_PREFIX}${eventId}:config`;
         const admittedKey = `${ADMITTED_PREFIX}${eventId}:${sessionId}`;
@@ -167,13 +163,13 @@ export async function getQueuePosition(
         const admittedToken = await redis.get(admittedKey);
         if (admittedToken) {
             const userKey = `${QUEUE_PREFIX}${eventId}:user:${sessionId}`;
-            const userData = await redis.hgetall(userKey);
+            const userData = (await redis.hgetall(userKey)) as Record<string, string> | null;
 
             return {
-                userId: userData.userId || '',
+                userId: userData?.userId || '',
                 sessionId,
                 position: 0,
-                joinedAt: parseInt(userData.joinedAt || '0', 10),
+                joinedAt: parseInt(userData?.joinedAt || '0', 10),
                 estimatedWait: 0,
                 status: 'admitted',
             };
@@ -187,16 +183,17 @@ export async function getQueuePosition(
         }
 
         const userKey = `${QUEUE_PREFIX}${eventId}:user:${sessionId}`;
-        const userData = await redis.hgetall(userKey);
+        const userData = (await redis.hgetall(userKey)) as Record<string, string> | null;
 
-        const admissionRate = parseInt(await redis.hget(configKey, 'admissionRate') || '100', 10);
+        const admissionRateStr = await redis.hget(configKey, 'admissionRate');
+        const admissionRate = parseInt((admissionRateStr as string) || '100', 10);
         const estimatedWait = Math.ceil((position / admissionRate) * 60);
 
         return {
-            userId: userData.userId || '',
+            userId: userData?.userId || '',
             sessionId,
             position: position + 1,
-            joinedAt: parseInt(userData.joinedAt || '0', 10),
+            joinedAt: parseInt(userData?.joinedAt || '0', 10),
             estimatedWait,
             status: 'waiting',
         };
@@ -214,11 +211,10 @@ export async function admitNextBatch(
     count: number = 10
 ): Promise<string[]> {
     try {
-        const redis = getRedis();
         const queueKey = `${QUEUE_PREFIX}${eventId}:waiting`;
 
         // Get next batch of users
-        const sessionIds = await redis.zrange(queueKey, 0, count - 1);
+        const sessionIds = (await redis.zrange(queueKey, 0, count - 1)) as string[];
 
         if (sessionIds.length === 0) {
             return [];
@@ -232,7 +228,7 @@ export async function admitNextBatch(
             const admittedKey = `${ADMITTED_PREFIX}${eventId}:${sessionId}`;
 
             // Store admission token (valid for 15 minutes)
-            await redis.set(admittedKey, token, 'EX', 900);
+            await redis.set(admittedKey, token, { ex: 900 });
 
             // Remove from queue
             await redis.zrem(queueKey, sessionId);
@@ -258,7 +254,6 @@ export async function verifyAdmission(
     token?: string
 ): Promise<boolean> {
     try {
-        const redis = getRedis();
         const admittedKey = `${ADMITTED_PREFIX}${eventId}:${sessionId}`;
 
         const storedToken = await redis.get(admittedKey);
@@ -280,7 +275,6 @@ export async function verifyAdmission(
  */
 export async function getQueueStatus(eventId: string): Promise<QueueStatus> {
     try {
-        const redis = getRedis();
         const queueKey = `${QUEUE_PREFIX}${eventId}:waiting`;
         const configKey = `${QUEUE_PREFIX}${eventId}:config`;
 
@@ -294,7 +288,7 @@ export async function getQueueStatus(eventId: string): Promise<QueueStatus> {
             eventId,
             isActive: active === '1',
             totalWaiting,
-            admissionRate: parseInt(admissionRate || '100', 10),
+            admissionRate: parseInt((admissionRate as string) || '100', 10),
         };
     } catch (error) {
         console.error('[Queue] Get status failed:', error);
@@ -315,7 +309,6 @@ export async function leaveQueue(
     sessionId: string
 ): Promise<boolean> {
     try {
-        const redis = getRedis();
         const queueKey = `${QUEUE_PREFIX}${eventId}:waiting`;
         const userKey = `${QUEUE_PREFIX}${eventId}:user:${sessionId}`;
 

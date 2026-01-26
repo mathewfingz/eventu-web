@@ -164,8 +164,7 @@ export async function getCoordinatorEvents(userId: string) {
           ticketTypes: true,
           _count: {
             select: {
-              orders: true,
-              tickets: true
+              orders: true
             }
           }
         },
@@ -202,8 +201,7 @@ export async function getCoordinatorEvents(userId: string) {
             ticketTypes: true,
             _count: {
               select: {
-                orders: true,
-                tickets: true
+                orders: true
               }
             }
           }

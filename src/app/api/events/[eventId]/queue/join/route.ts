@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { joinQueue, getQueuePosition, isQueueActive } from '@/lib/inventory/queue';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Join virtual queue for an event
  */

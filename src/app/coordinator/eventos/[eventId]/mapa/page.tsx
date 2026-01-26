@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {
@@ -9,10 +9,8 @@ import {
     Maximize2,
     Grid,
     Layers,
-    Eye,
     Settings,
     AlertCircle,
-    CheckCircle,
     Loader2
 } from 'lucide-react';
 
@@ -32,8 +30,10 @@ const MapEditor = dynamic(
     }
 );
 
+import { VenueMap, SectionType } from '@/components/map-editor/types';
+
 // Mock map data
-const mockMapData = {
+const mockMapData: VenueMap = {
     id: 'map-1',
     name: 'Movistar Arena - Concierto',
     width: 1200,
@@ -41,42 +41,59 @@ const mockMapData = {
     backgroundColor: '#f5f5f5',
     showGrid: true,
     gridSize: 20,
+    isTemplate: false,
+    version: 1,
     sections: [
         {
             id: 'sec-1',
             name: 'VIP',
-            type: 'SEATED',
+            type: 'SEATED' as SectionType,
             color: '#E53935',
             x: 100,
             y: 150,
             width: 300,
             height: 200,
             capacity: 150,
-            ticketTypeId: 'tt-1'
+            ticketTypeId: 'tt-1',
+            shape: 'rectangle',
+            rotation: 0,
+            isActive: true,
+            layer: 1,
+            opacity: 1
         },
         {
             id: 'sec-2',
             name: 'General',
-            type: 'GENERAL_ADMISSION',
+            type: 'GENERAL_ADMISSION' as SectionType,
             color: '#3B82F6',
             x: 450,
             y: 150,
             width: 350,
             height: 300,
             capacity: 500,
-            ticketTypeId: 'tt-2'
+            ticketTypeId: 'tt-2',
+            shape: 'rectangle',
+            rotation: 0,
+            isActive: true,
+            layer: 1,
+            opacity: 1
         },
         {
             id: 'sec-3',
             name: 'Platino',
-            type: 'SEATED',
+            type: 'SEATED' as SectionType,
             color: '#F59E0B',
             x: 850,
             y: 150,
             width: 250,
             height: 200,
             capacity: 100,
-            ticketTypeId: 'tt-3'
+            ticketTypeId: 'tt-3',
+            shape: 'rectangle',
+            rotation: 0,
+            isActive: true,
+            layer: 1,
+            opacity: 1
         }
     ],
     elements: [
@@ -88,7 +105,11 @@ const mockMapData = {
             y: 50,
             width: 600,
             height: 80,
-            color: '#1F2937'
+
+            color: '#1F2937',
+            rotation: 0,
+            layer: 1,
+            isLocked: true
         },
         {
             id: 'el-2',
@@ -98,7 +119,11 @@ const mockMapData = {
             y: 450,
             width: 100,
             height: 60,
-            color: '#7C3AED'
+
+            color: '#7C3AED',
+            rotation: 0,
+            layer: 1,
+            isLocked: false
         },
         {
             id: 'el-3',
@@ -108,7 +133,11 @@ const mockMapData = {
             y: 450,
             width: 80,
             height: 60,
-            color: '#059669'
+
+            color: '#059669',
+            rotation: 0,
+            layer: 1,
+            isLocked: false
         }
     ]
 };
@@ -122,7 +151,7 @@ const inventoryStats = {
 
 export default function EventMapPage() {
     const params = useParams();
-    const eventId = params?.eventId as string;
+    const _eventId = params?.eventId as string;
 
     const [mapData, setMapData] = useState(mockMapData);
     const [hasChanges, setHasChanges] = useState(false);
@@ -164,11 +193,10 @@ export default function EventMapPage() {
                     {/* Grid toggle */}
                     <button
                         onClick={() => setShowGrid(!showGrid)}
-                        className={`p-2 rounded-lg border transition-colors ${
-                            showGrid
-                                ? 'bg-gray-100 border-gray-300 text-gray-700'
-                                : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                        }`}
+                        className={`p-2 rounded-lg border transition-colors ${showGrid
+                            ? 'bg-gray-100 border-gray-300 text-gray-700'
+                            : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                            }`}
                         title="Mostrar cuadricula"
                     >
                         <Grid className="w-5 h-5" />
@@ -198,11 +226,10 @@ export default function EventMapPage() {
                     <button
                         onClick={handleSave}
                         disabled={!hasChanges || isSaving}
-                        className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
-                            hasChanges
-                                ? 'bg-[#E53935] text-white hover:bg-[#B71C1C]'
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        }`}
+                        className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${hasChanges
+                            ? 'bg-[#E53935] text-white hover:bg-[#B71C1C]'
+                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            }`}
                     >
                         {isSaving ? (
                             <>
@@ -244,7 +271,7 @@ export default function EventMapPage() {
                         {/* Canvas Area */}
                         <div className={`relative ${isFullscreen ? 'h-[calc(100%-52px)]' : 'h-[600px]'}`}>
                             <MapEditor
-                                initialData={mapData}
+                                initialMap={mapData}
                                 onChange={handleMapChange}
                                 showGrid={showGrid}
                                 onSectionSelect={setSelectedSection}
@@ -270,11 +297,10 @@ export default function EventMapPage() {
                                 return (
                                     <div
                                         key={section.id}
-                                        className={`p-3 rounded-lg border transition-colors cursor-pointer ${
-                                            selectedSection === section.id
-                                                ? 'border-[#E53935] bg-[#E53935]/5'
-                                                : 'border-gray-100 hover:border-gray-200'
-                                        }`}
+                                        className={`p-3 rounded-lg border transition-colors cursor-pointer ${selectedSection === section.id
+                                            ? 'border-[#E53935] bg-[#E53935]/5'
+                                            : 'border-gray-100 hover:border-gray-200'
+                                            }`}
                                         onClick={() => setSelectedSection(section.id)}
                                     >
                                         <div className="flex items-center gap-2 mb-2">
@@ -413,7 +439,7 @@ export default function EventMapPage() {
                                                     onChange={(e) => {
                                                         const updated = mapData.sections.map(s =>
                                                             s.id === selectedSection
-                                                                ? { ...s, type: e.target.value }
+                                                                ? { ...s, type: e.target.value as SectionType }
                                                                 : s
                                                         );
                                                         setMapData({ ...mapData, sections: updated });

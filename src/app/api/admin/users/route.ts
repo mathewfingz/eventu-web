@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // GET - List all users with optional filters
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const search = searchParams.get('search') || '';
         const role = searchParams.get('role');
-        const status = searchParams.get('status');
+        // const status = searchParams.get('status');
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const where: any = {};
 
         // Search filter
@@ -110,7 +113,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Use transaction to ensure both user and potential venue are created together
-        const result = await prisma.$transaction(async (tx: typeof prisma) => {
+        const result = await prisma.$transaction(async (tx) => {
             // Create user
             const newUser = await tx.user.create({
                 data: {

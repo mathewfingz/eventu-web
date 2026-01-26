@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mapsStore, generateId, MapData } from '@/lib/maps-store';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/maps - Get all maps (templates and venue maps)
 export async function GET(request: NextRequest) {
   try {

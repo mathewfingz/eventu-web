@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 // GET /api/admin/payment-config - Get all payment provider configurations
 export async function GET() {
@@ -12,21 +14,21 @@ export async function GET() {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const providerStats = await prisma.payment.groupBy({
+    const providerStats = await prisma.order.groupBy({
       by: ['paymentMethod'],
       where: {
         createdAt: { gte: thirtyDaysAgo },
       },
       _count: { _all: true },
-      _sum: { amount: true },
+      _sum: { total: true },
     });
 
     // Calculate success rates
-    const successStats = await prisma.payment.groupBy({
+    const successStats = await prisma.order.groupBy({
       by: ['paymentMethod'],
       where: {
         createdAt: { gte: thirtyDaysAgo },
-        status: 'COMPLETED',
+        status: 'PAID',
       },
       _count: { _all: true },
     });
@@ -50,7 +52,7 @@ export async function GET() {
         lastTestedAt: config?.lastTestedAt,
         stats: {
           transactions: totalCount,
-          volume: stats?._sum.amount || 0,
+          volume: stats?._sum.total || 0,
           successRate: parseFloat(successRate),
         },
       };

@@ -9,6 +9,8 @@ import { createClient } from '@/lib/supabase/server';
 import { getEventAnalytics, getOrganizerAnalytics } from '@/lib/analytics/engine';
 import { predictDemand, getDemandInsights } from '@/lib/ai/demand-prediction';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/analytics/event/[eventId]
  * Get comprehensive analytics for an event

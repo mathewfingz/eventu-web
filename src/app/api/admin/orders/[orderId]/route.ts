@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/orders/[orderId] - Get a single order with full details
 export async function GET(
   request: NextRequest,
@@ -44,11 +46,7 @@ export async function GET(
             },
           },
         },
-        payments: {
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
+
       },
     });
 
@@ -82,7 +80,7 @@ export async function PATCH(
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
-        payments: true,
+
         items: true,
       },
     });
@@ -112,15 +110,15 @@ export async function PATCH(
       });
 
       // Update payment status if exists
-      if (order.payments.length > 0) {
-        await prisma.payment.updateMany({
-          where: { orderId },
-          data: {
-            status: 'REFUNDED',
-            refundedAt: new Date(),
-          },
-        });
-      }
+      // if (order.payments.length > 0) {
+      //   await prisma.payment.updateMany({
+      //     where: { orderId },
+      //     data: {
+      //       status: 'REFUNDED',
+      //       refundedAt: new Date(),
+      //     },
+      //   });
+      // }
 
       return NextResponse.json({
         message: 'Orden reembolsada correctamente',

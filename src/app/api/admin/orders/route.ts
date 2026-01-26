@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/orders - Get all orders with filters
 export async function GET(request: NextRequest) {
   try {
@@ -78,12 +80,7 @@ export async function GET(request: NextRequest) {
               },
             },
           },
-          payments: {
-            orderBy: {
-              createdAt: 'desc',
-            },
-            take: 1,
-          },
+
         },
         orderBy: {
           createdAt: 'desc',
@@ -112,7 +109,7 @@ export async function GET(request: NextRequest) {
 
     // Transform data for frontend
     const formattedOrders = orders.map((order) => {
-      const payment = order.payments[0];
+      // const payment = order.payments[0];
 
       return {
         id: order.id,
@@ -124,15 +121,15 @@ export async function GET(request: NextRequest) {
         venueName: order.event?.venue?.name,
         total: order.total,
         subtotal: order.subtotal,
-        fees: order.platformFee || 0,
-        taxes: order.taxAmount || 0,
+        fees: order.feesTotal || 0,
+        taxes: order.taxesTotal || 0,
         status: order.status,
-        paymentMethod: payment?.paymentMethod || null,
-        paymentStatus: payment?.status || null,
+        paymentMethod: order.paymentMethod || null,
+        paymentStatus: order.status || null,
         createdAt: order.createdAt,
-        paidAt: payment?.paidAt,
+        paidAt: order.paidAt,
         ticketCount: order.items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0),
-        items: order.items.map((item) => ({
+        items: order.items.map((item: { id: string; quantity: number; ticketType: { name: string; price: number } | null }) => ({
           id: item.id,
           name: item.ticketType?.name || 'Ticket',
           quantity: item.quantity,

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -59,8 +61,7 @@ export async function POST(request: NextRequest) {
       select: {
         id: true,
         status: true,
-        usedAt: true,
-        validatedBy: true
+        usedAt: true
       }
     });
 
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
       data: {
         status: 'USED',
         usedAt: validationTime,
-        validatedBy: session.user.id
+        usedByDevice: deviceId || null
       }
     });
 
@@ -112,8 +113,11 @@ export async function POST(request: NextRequest) {
         action: 'TICKET_VALIDATED',
         entityType: 'TICKET',
         entityId: ticketId,
-        userId: session.user.id,
-        details: {
+        performedById: session.user.id,
+        performedByType: 'COORDINATOR',
+        hash: 'SYNC_VALIDATION', // Placeholder
+        previousHash: 'GENESIS', // Placeholder
+        metadata: {
           eventId: eventId || null,
           code,
           deviceId,

@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { verifyCoordinatorAccess } from '@/lib/coordinator-auth';
 
+export const dynamic = 'force-dynamic';
+
 // Generate random code
 function generateCode(length: number = 8): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

@@ -1,35 +1,22 @@
-import Redis from 'ioredis';
-
-declare global {
-    var redis: Redis | undefined;
-}
-
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+import { Redis } from '@upstash/redis';
 
 /**
- * Redis client singleton for caching, locks, and queue management
+ * Upstash Redis client for serverless environments
+ * Uses REST API - works perfectly with Vercel Edge Functions
  */
-export const redis = globalThis.redis || new Redis(REDIS_URL, {
-    maxRetriesPerRequest: 3,
-    // Reconnect strategy
-    retryStrategy(times) {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-    },
+export const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL!,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
-
-if (process.env.NODE_ENV !== 'production') {
-    globalThis.redis = redis;
-}
 
 // Helper functions for common operations
 export async function getCache<T>(key: string): Promise<T | null> {
-    const data = await redis.get(key);
-    if (!data) return null;
     try {
-        return JSON.parse(data) as T;
-    } catch {
-        return data as unknown as T;
+        const data = await redis.get<T>(key);
+        return data;
+    } catch (error) {
+        console.error('[Redis] Get cache error:', error);
+        return null;
     }
 }
 
@@ -38,23 +25,63 @@ export async function setCache(
     value: unknown,
     ttlSeconds?: number
 ): Promise<void> {
-    const serialized = typeof value === 'string' ? value : JSON.stringify(value);
-    if (ttlSeconds) {
-        await redis.set(key, serialized, 'EX', ttlSeconds);
-    } else {
-        await redis.set(key, serialized);
+    try {
+        if (ttlSeconds) {
+            await redis.set(key, value, { ex: ttlSeconds });
+        } else {
+            await redis.set(key, value);
+        }
+    } catch (error) {
+        console.error('[Redis] Set cache error:', error);
     }
 }
 
 export async function deleteCache(key: string): Promise<void> {
-    await redis.del(key);
+    try {
+        await redis.del(key);
+    } catch (error) {
+        console.error('[Redis] Delete cache error:', error);
+    }
 }
 
 export async function invalidatePattern(pattern: string): Promise<void> {
-    const keys = await redis.keys(pattern);
-    if (keys.length > 0) {
-        await redis.del(...keys);
+    try {
+        const keys = await redis.keys(pattern);
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
+    } catch (error) {
+        console.error('[Redis] Invalidate pattern error:', error);
     }
+}
+
+// Increment counter (useful for rate limiting, analytics)
+export async function incrementCounter(key: string, ttlSeconds?: number): Promise<number> {
+    try {
+        const count = await redis.incr(key);
+        if (ttlSeconds && count === 1) {
+            await redis.expire(key, ttlSeconds);
+        }
+        return count;
+    } catch (error) {
+        console.error('[Redis] Increment error:', error);
+        return 0;
+    }
+}
+
+// Lock mechanism for inventory management
+export async function acquireLock(key: string, ttlSeconds: number = 30): Promise<boolean> {
+    try {
+        const result = await redis.set(key, '1', { nx: true, ex: ttlSeconds });
+        return result === 'OK';
+    } catch (error) {
+        console.error('[Redis] Acquire lock error:', error);
+        return false;
+    }
+}
+
+export async function releaseLock(key: string): Promise<void> {
+    await deleteCache(key);
 }
 
 // Alias for backward compatibility

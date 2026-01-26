@@ -1,11 +1,11 @@
 /**
  * Real-time Analytics
- * 
+ *
  * Tracks active users and real-time metrics using Redis.
  * Provides data for live dashboards and iOS widgets.
  */
 
-import { getRedis } from '../redis';
+import { redis } from '../redis';
 
 const ACTIVE_USERS_PREFIX = 'analytics:active:';
 const REAL_TIME_STATS_PREFIX = 'analytics:realtime:';
@@ -31,16 +31,15 @@ export async function recordHeartbeat(
     location: 'browsing' | 'checkout' | 'queue' | 'payment'
 ): Promise<void> {
     try {
-        const redis = getRedis();
         const now = Date.now();
 
         // Add to active users sorted set with timestamp
         const activeKey = `${ACTIVE_USERS_PREFIX}${eventId}:users`;
-        await redis.zadd(activeKey, now, sessionId);
+        await redis.zadd(activeKey, { score: now, member: sessionId });
 
         // Track user location
         const locationKey = `${ACTIVE_USERS_PREFIX}${eventId}:${location}`;
-        await redis.zadd(locationKey, now, sessionId);
+        await redis.zadd(locationKey, { score: now, member: sessionId });
 
         // Set expiry on keys
         await redis.expire(activeKey, ACTIVE_WINDOW + 60);
@@ -60,7 +59,6 @@ export async function recordHeartbeat(
  */
 export async function getRealTimeStats(eventId: string): Promise<RealTimeStats> {
     try {
-        const redis = getRedis();
         const now = Date.now();
         const cutoff = now - (ACTIVE_WINDOW * 1000);
 
@@ -119,7 +117,6 @@ export async function recordSale(
     revenue: number
 ): Promise<void> {
     try {
-        const redis = getRedis();
         const now = Date.now();
         const saleId = `${now}_${Math.random().toString(36).slice(2)}`;
 
@@ -127,16 +124,14 @@ export async function recordSale(
         for (let i = 0; i < ticketCount; i++) {
             await redis.zadd(
                 `${REAL_TIME_STATS_PREFIX}${eventId}:tickets`,
-                now,
-                `${saleId}_${i}`
+                { score: now, member: `${saleId}_${i}` }
             );
         }
 
         // Record revenue with amount as member for summing
         await redis.zadd(
             `${REAL_TIME_STATS_PREFIX}${eventId}:revenue`,
-            now,
-            `${revenue}:${saleId}`
+            { score: now, member: `${revenue}:${saleId}` }
         );
 
         // Clean up old entries (keep 1 hour)
@@ -168,7 +163,6 @@ async function getSumInRange(redis: any, key: string, since: number): Promise<nu
  */
 export async function getLiveUserCount(eventId: string): Promise<number> {
     try {
-        const redis = getRedis();
         const cutoff = Date.now() - (ACTIVE_WINDOW * 1000);
         return redis.zcount(`${ACTIVE_USERS_PREFIX}${eventId}:users`, cutoff, '+inf');
     } catch (error) {

@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { processMessage, saveChatSession, ChatContext, ChatMessage } from '@/lib/ai/chatbot';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/chat
  * Process a chat message and get AI response

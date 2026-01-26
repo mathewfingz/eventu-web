@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyMercadoPagoWebhook, getMercadoPagoPayment } from '@/lib/payments/mercadopago';
 import { createClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * MercadoPago Webhook Handler
  * 

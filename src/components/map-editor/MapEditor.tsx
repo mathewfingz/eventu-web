@@ -30,9 +30,12 @@ interface MapEditorProps {
   onSave?: (map: VenueMap) => Promise<void>;
   eventId?: string;
   venueId?: string;
+  onChange?: (map: VenueMap) => void;
+  onSectionSelect?: (id: string | null) => void;
+  showGrid?: boolean;
 }
 
-export function MapEditor({ initialMap, onSave, eventId, venueId }: MapEditorProps) {
+export function MapEditor({ initialMap, onSave, eventId: _eventId, venueId: _venueId, onChange, onSectionSelect, showGrid }: MapEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [showSeatGenerator, setShowSeatGenerator] = useState(false);
@@ -46,6 +49,26 @@ export function MapEditor({ initialMap, onSave, eventId, venueId }: MapEditorPro
 
   // Setup keyboard shortcuts
   useKeyboard(editor);
+
+  // Sync state with parent
+  useEffect(() => {
+    onChange?.(editor.map);
+  }, [editor.map, onChange]);
+
+  useEffect(() => {
+    if (onSectionSelect) {
+      const sectionId = editor.selectedType === 'section' && editor.selectedIds.length === 1
+        ? editor.selectedIds[0]
+        : null;
+      onSectionSelect(sectionId);
+    }
+  }, [editor.selectedIds, editor.selectedType, onSectionSelect]);
+
+  useEffect(() => {
+    if (showGrid !== undefined && editor.map.showGrid !== showGrid) {
+      editor.updateMapProperties({ showGrid });
+    }
+  }, [showGrid, editor]);
 
   // Handle container resize
   useEffect(() => {

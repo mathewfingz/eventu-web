@@ -211,17 +211,17 @@ export function EditorCanvas({ editor, width, height }: EditorCanvasProps) {
 
     const shapeProps = section.shape === 'circle'
       ? {
-          x: section.x + section.width / 2,
-          y: section.y + section.height / 2,
-          radiusX: section.width / 2,
-          radiusY: section.height / 2,
-        }
+        x: section.x + section.width / 2,
+        y: section.y + section.height / 2,
+        radiusX: section.width / 2,
+        radiusY: section.height / 2,
+      }
       : {
-          x: section.x,
-          y: section.y,
-          width: section.width,
-          height: section.height,
-        };
+        x: section.x,
+        y: section.y,
+        width: section.width,
+        height: section.height,
+      };
 
     return (
       <Group key={section.id} id={section.id}>
@@ -393,7 +393,7 @@ export function EditorCanvas({ editor, width, height }: EditorCanvasProps) {
             fill={statusColor}
             stroke="#fff"
             strokeWidth={2}
-            cornerRadius={table.shape === 'round' ? table.width / 2 : 4}
+            cornerRadius={4}
             rotation={table.rotation}
             onClick={(e) => {
               e.cancelBubble = true;

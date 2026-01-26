@@ -9,6 +9,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { trackEvent } from '@/lib/analytics/engine';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/analytics/track
  * Track an analytics event (works for web and mobile)

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ eventId: string }> }
@@ -39,7 +41,7 @@ export async function GET(
       );
     }
 
-    const eventId = params.eventId;
+    const { eventId } = await params;
 
     // Verify event exists
     const event = await prisma.event.findUnique({
@@ -49,9 +51,9 @@ export async function GET(
           select: {
             id: true,
             name: true,
-            quantity: true,
-            sold: true,
-            color: true
+            totalQuantity: true,
+
+            soldQuantity: true
           }
         }
       }
@@ -78,7 +80,7 @@ export async function GET(
     });
 
     // Calculate totals
-    const totalSold = event.ticketTypes.reduce((sum, tt) => sum + tt.sold, 0);
+    const totalSold = event.ticketTypes.reduce((sum, tt) => sum + tt.soldQuantity, 0);
 
     // Count processed (USED) tickets
     const processedByType: Record<string, number> = {};
@@ -99,16 +101,16 @@ export async function GET(
       where: {
         action: 'TICKET_VALIDATED',
         entityType: 'TICKET',
-        createdAt: { gte: sixHoursAgo },
-        details: {
+        timestamp: { gte: sixHoursAgo },
+        metadata: {
           path: ['eventId'],
           equals: eventId
         }
       },
       select: {
-        createdAt: true
+        timestamp: true
       },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { timestamp: 'asc' }
     });
 
     // Group by hour
@@ -116,7 +118,7 @@ export async function GET(
     const hourCounts: Record<string, number> = {};
 
     recentValidations.forEach(v => {
-      const hour = v.createdAt.toISOString().slice(11, 16).replace(':', 'h').slice(0, 3) + ':00';
+      const hour = v.timestamp.toISOString().slice(11, 16).replace(':', 'h').slice(0, 3) + ':00';
       hourCounts[hour] = (hourCounts[hour] || 0) + 1;
     });
 
@@ -136,8 +138,8 @@ export async function GET(
       where: {
         action: 'TICKET_VALIDATED',
         entityType: 'TICKET',
-        createdAt: { gte: fiveMinutesAgo },
-        details: {
+        timestamp: { gte: fiveMinutesAgo },
+        metadata: {
           path: ['eventId'],
           equals: eventId
         }
@@ -151,12 +153,12 @@ export async function GET(
     thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
 
     const validatorActivity = await prisma.auditLog.groupBy({
-      by: ['userId'],
+      by: ['performedById'],
       where: {
         action: 'TICKET_VALIDATED',
         entityType: 'TICKET',
-        createdAt: { gte: thirtyMinutesAgo },
-        details: {
+        timestamp: { gte: thirtyMinutesAgo },
+        metadata: {
           path: ['eventId'],
           equals: eventId
         }
@@ -165,12 +167,12 @@ export async function GET(
         id: true
       },
       _max: {
-        createdAt: true
+        timestamp: true
       }
     });
 
     // Get validator user info
-    const validatorIds = validatorActivity.map(v => v.userId).filter(Boolean) as string[];
+    const validatorIds = validatorActivity.map(v => v.performedById).filter(Boolean) as string[];
     const validators = await prisma.user.findMany({
       where: { id: { in: validatorIds } },
       select: { id: true, name: true, email: true }
@@ -179,16 +181,16 @@ export async function GET(
     const validatorMap = new Map(validators.map(v => [v.id, v]));
 
     const activeValidators = validatorActivity
-      .filter(v => v.userId)
+      .filter(v => v.performedById)
       .map(v => {
-        const user = validatorMap.get(v.userId!);
-        const lastValidation = v._max.createdAt;
+        const user = validatorMap.get(v.performedById!);
+        const lastValidation = v._max.timestamp;
         const timeSinceLastValidation = lastValidation
           ? (Date.now() - lastValidation.getTime()) / 1000
           : Infinity;
 
         return {
-          id: v.userId!,
+          id: v.performedById!,
           name: user?.name || user?.email?.split('@')[0] || 'Validador',
           email: user?.email || null,
           validationsCount: v._count.id,
@@ -203,9 +205,9 @@ export async function GET(
     const byTicketType = event.ticketTypes.map(tt => ({
       id: tt.id,
       name: tt.name,
-      sold: tt.sold,
+      sold: tt.soldQuantity,
       processed: processedByType[tt.id] || 0,
-      color: tt.color || '#3B82F6'
+      color: '#3B82F6'
     }));
 
     // Check for capacity alerts

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET /api/admin/transactions - Get all transactions with filters
+export const dynamic = 'force-dynamic';
+
+// GET /api/admin/transactions - Get all transactions (orders) with filters
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -13,14 +15,15 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: Record<string, unknown> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = {};
 
     if (search) {
       where.OR = [
-        { order: { orderNumber: { contains: search, mode: 'insensitive' } } },
-        { order: { user: { name: { contains: search, mode: 'insensitive' } } } },
-        { order: { user: { email: { contains: search, mode: 'insensitive' } } } },
-        { order: { event: { name: { contains: search, mode: 'insensitive' } } } },
+        { orderNumber: { contains: search, mode: 'insensitive' } },
+        { user: { name: { contains: search, mode: 'insensitive' } } },
+        { user: { email: { contains: search, mode: 'insensitive' } } },
+        { event: { name: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
@@ -32,40 +35,36 @@ export async function GET(request: NextRequest) {
       where.paymentMethod = method;
     }
 
-    // Get transactions with related data
-    const [transactions, total] = await Promise.all([
-      prisma.payment.findMany({
+    // Get orders acting as transactions
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
         where,
         include: {
-          order: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          event: {
+            select: {
+              id: true,
+              name: true,
+              date: true,
+              venue: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          items: {
             include: {
-              user: {
+              ticketType: {
                 select: {
-                  id: true,
                   name: true,
-                  email: true,
-                },
-              },
-              event: {
-                select: {
-                  id: true,
-                  name: true,
-                  date: true,
-                  venue: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
-              items: {
-                include: {
-                  ticketType: {
-                    select: {
-                      name: true,
-                      price: true,
-                    },
-                  },
+                  price: true,
                 },
               },
             },
@@ -77,35 +76,31 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
       }),
-      prisma.payment.count({ where }),
+      prisma.order.count({ where }),
     ]);
 
     // Transform data for frontend
-    const formattedTransactions = transactions.map((txn) => {
-      const subtotal = txn.order?.items?.reduce(
-        (sum, item) => sum + (item.ticketType?.price || 0) * item.quantity,
-        0
-      ) || 0;
-
+    const formattedTransactions = orders.map((order) => {
       return {
-        id: txn.id,
-        orderId: txn.order?.orderNumber || txn.orderId,
-        eventName: txn.order?.event?.name || 'Evento desconocido',
-        eventDate: txn.order?.event?.date?.toISOString(),
-        venueName: txn.order?.event?.venue?.name,
-        customerName: txn.order?.user?.name || 'Cliente desconocido',
-        customerEmail: txn.order?.user?.email || '',
-        amount: txn.amount,
-        fee: txn.platformFee || 0,
-        netAmount: txn.amount - (txn.platformFee || 0),
-        subtotal,
-        taxesTotal: txn.taxAmount || 0,
-        method: txn.paymentMethod,
-        paymentId: txn.externalId,
-        status: txn.status,
-        createdAt: txn.createdAt,
-        paidAt: txn.paidAt,
-        items: txn.order?.items?.map((item) => ({
+        id: order.id,
+        orderId: order.orderNumber,
+        eventName: order.event?.name || 'Evento desconocido',
+        eventDate: order.event?.date?.toISOString(),
+        venueName: order.event?.venue?.name,
+        customerName: order.user?.name || 'Cliente desconocido',
+        customerEmail: order.user?.email || '',
+        amount: order.total,
+        fee: order.feesTotal,
+        netAmount: order.subtotal,
+        subtotal: order.subtotal,
+        taxesTotal: order.taxesTotal,
+        method: order.paymentMethod,
+        paymentId: order.paymentId,
+        status: order.status,
+        createdAt: order.createdAt,
+        paidAt: order.paidAt,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: order.items.map((item: any) => ({
           name: item.ticketType?.name || 'Ticket',
           quantity: item.quantity,
           unitPrice: item.ticketType?.price || 0,

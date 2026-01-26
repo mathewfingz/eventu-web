@@ -59,7 +59,7 @@ export function Footer() {
                             </span>
                         </Link>
                         <p className="text-gray-400 text-sm mb-4 max-w-xs">
-                            La plataforma de ticketing más segura de Colombia. Compra tus boletas con confianza.
+                            Tickets a un Click. La plataforma de boletería más segura para los mejores eventos de Colombia.
                         </p>
 
                         {/* Social links */}
@@ -190,13 +190,13 @@ export function Footer() {
                         </div>
 
                         <div className="flex items-center gap-4 text-sm text-gray-400">
-                            <a href="tel:+573001234567" className="flex items-center gap-2 hover:text-white transition-colors">
+                            <a href="tel:+573002850000" className="flex items-center gap-2 hover:text-white transition-colors">
                                 <Phone className="w-4 h-4" />
-                                +57 300 123 4567
+                                (300) 285-0000
                             </a>
-                            <a href="mailto:soporte@eventu.co" className="flex items-center gap-2 hover:text-white transition-colors">
+                            <a href="mailto:info@eventu.co" className="flex items-center gap-2 hover:text-white transition-colors">
                                 <Mail className="w-4 h-4" />
-                                soporte@eventu.co
+                                info@eventu.co
                             </a>
                         </div>
                     </div>

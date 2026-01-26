@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mapsStore, generateId, MapData, SectionData, SeatData, TableData, ElementData } from '@/lib/maps-store';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/maps/[mapId] - Get a single map with all details
 export async function GET(
   request: NextRequest,

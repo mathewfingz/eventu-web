@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// POST /api/admin/transactions/[id]/refund - Process refund for a transaction
+export const dynamic = 'force-dynamic';
+
+// POST /api/admin/transactions/[id]/refund - Process refund for a transaction (order)
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -9,53 +11,40 @@ export async function POST(
   try {
     const { id } = await params;
 
-    // Get the payment
-    const payment = await prisma.payment.findUnique({
+    // Get the order
+    const order = await prisma.order.findUnique({
       where: { id },
-      include: {
-        order: true,
-      },
     });
 
-    if (!payment) {
+    if (!order) {
       return NextResponse.json(
         { error: 'Transacción no encontrada' },
         { status: 404 }
       );
     }
 
-    if (payment.status !== 'COMPLETED') {
-      return NextResponse.json(
-        { error: 'Solo se pueden reembolsar transacciones completadas' },
-        { status: 400 }
-      );
-    }
-
-    if (payment.status === 'REFUNDED') {
+    if (order.status === 'REFUNDED') {
       return NextResponse.json(
         { error: 'Esta transacción ya fue reembolsada' },
         { status: 400 }
       );
     }
 
-    // Update payment status to REFUNDED
-    await prisma.payment.update({
+    if (order.status !== 'PAID') {
+      return NextResponse.json(
+        { error: 'Solo se pueden reembolsar transacciones completadas' },
+        { status: 400 }
+      );
+    }
+
+    // Update order status to REFUNDED
+    await prisma.order.update({
       where: { id },
       data: {
         status: 'REFUNDED',
-        refundedAt: new Date(),
+        // In a real system we would record refund metadata or create a refund record
       },
     });
-
-    // Update order status if exists
-    if (payment.orderId) {
-      await prisma.order.update({
-        where: { id: payment.orderId },
-        data: {
-          status: 'REFUNDED',
-        },
-      });
-    }
 
     return NextResponse.json({
       message: 'Reembolso procesado correctamente',

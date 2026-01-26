@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validateDynamicCode } from '@/lib/safetix/totp';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * SafeTix Validation API
  * 

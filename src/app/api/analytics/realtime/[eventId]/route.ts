@@ -7,6 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRealTimeStats, recordHeartbeat } from '@/lib/analytics/realtime';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/analytics/realtime/[eventId]
  * Get real-time stats for iOS widget and dashboard

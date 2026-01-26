@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { verifyCoordinatorAccess } from '@/lib/coordinator-auth';
 
+export const dynamic = 'force-dynamic';
+
 type RouteContext = { params: Promise<{ eventId: string }> };
 
 export async function GET(

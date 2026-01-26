@@ -93,7 +93,7 @@ export default function ContactPage() {
                                 <h2 className="text-2xl font-bold mb-6">Contacto directo</h2>
                                 <div className="space-y-4">
                                     <a
-                                        href="mailto:soporte@eventu.co"
+                                        href="mailto:info@eventu.co"
                                         className="flex items-center gap-4 p-4 bg-[#212121] rounded-xl hover:bg-[#2a2a2a] transition-colors"
                                     >
                                         <div className="w-12 h-12 bg-[#E53935]/20 rounded-full flex items-center justify-center">
@@ -101,12 +101,12 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <p className="font-medium">Email</p>
-                                            <p className="text-gray-400 text-sm">soporte@eventu.co</p>
+                                            <p className="text-gray-400 text-sm">info@eventu.co</p>
                                         </div>
                                     </a>
 
                                     <a
-                                        href="tel:+573001234567"
+                                        href="tel:+573002850000"
                                         className="flex items-center gap-4 p-4 bg-[#212121] rounded-xl hover:bg-[#2a2a2a] transition-colors"
                                     >
                                         <div className="w-12 h-12 bg-[#E53935]/20 rounded-full flex items-center justify-center">
@@ -114,12 +114,12 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <p className="font-medium">Teléfono</p>
-                                            <p className="text-gray-400 text-sm">+57 300 123 4567</p>
+                                            <p className="text-gray-400 text-sm">(300) 285-0000</p>
                                         </div>
                                     </a>
 
                                     <a
-                                        href="https://wa.me/573001234567"
+                                        href="https://wa.me/573002850000"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-4 p-4 bg-[#212121] rounded-xl hover:bg-[#2a2a2a] transition-colors"

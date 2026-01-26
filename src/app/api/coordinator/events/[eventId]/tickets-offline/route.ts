@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ eventId: string }> }
@@ -39,7 +41,7 @@ export async function GET(
       );
     }
 
-    const eventId = params.eventId;
+    const { eventId } = await params;
 
     // Verify event exists and user has access
     const event = await prisma.event.findUnique({
@@ -81,11 +83,11 @@ export async function GET(
         status: true,
         seatRow: true,
         seatNumber: true,
+        section: true,
         ticketType: {
           select: {
             id: true,
-            name: true,
-            section: true
+            name: true
           }
         },
         user: {
@@ -96,8 +98,7 @@ export async function GET(
         },
         order: {
           select: {
-            customerName: true,
-            customerEmail: true
+            status: true
           }
         }
       }
@@ -112,13 +113,13 @@ export async function GET(
       id: ticket.id,
       ticketTypeId: ticket.ticketType.id,
       ticketTypeName: ticket.ticketType.name,
-      section: ticket.ticketType.section,
+      section: ticket.section,
       seatRow: ticket.seatRow,
       seatNumber: ticket.seatNumber,
       safetixSecret: ticket.safetixSecret || '',
       status: ticket.status,
-      buyerName: ticket.order?.customerName || ticket.user?.name || null,
-      buyerEmail: ticket.order?.customerEmail || ticket.user?.email || null
+      buyerName: ticket.user?.name || null,
+      buyerEmail: ticket.user?.email || null
     }));
 
     // Log the download for audit
@@ -127,8 +128,11 @@ export async function GET(
         action: 'OFFLINE_DOWNLOAD',
         entityType: 'EVENT',
         entityId: eventId,
-        userId: session.user.id,
-        details: {
+        performedById: session.user.id,
+        performedByType: 'COORDINATOR',
+        hash: 'OFFLINE_DOWNLOAD', // Placeholder
+        previousHash: 'GENESIS', // Placeholder
+        metadata: {
           ticketCount: formattedTickets.length,
           downloadedAt: new Date().toISOString()
         }

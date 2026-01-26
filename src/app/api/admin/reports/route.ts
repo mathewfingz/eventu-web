@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/reports - Get report data with aggregations
 export async function GET(request: NextRequest) {
   try {
@@ -56,7 +58,7 @@ export async function GET(request: NextRequest) {
       prisma.order.aggregate({
         where: {
           ...dateFilter,
-          status: { in: ['COMPLETED', 'CONFIRMED'] },
+          status: { in: ['PAID'] },
         },
         _sum: {
           total: true,
@@ -74,7 +76,7 @@ export async function GET(request: NextRequest) {
         where: {
           order: {
             ...dateFilter,
-            status: { in: ['COMPLETED', 'CONFIRMED'] },
+            status: { in: ['PAID'] },
           },
         },
         _sum: {
@@ -101,7 +103,7 @@ export async function GET(request: NextRequest) {
           orders: {
             some: {
               ...dateFilter,
-              status: { in: ['COMPLETED', 'CONFIRMED'] },
+              status: { in: ['PAID'] },
             },
           },
         },
@@ -112,14 +114,14 @@ export async function GET(request: NextRequest) {
             select: {
               orders: {
                 where: {
-                  status: { in: ['COMPLETED', 'CONFIRMED'] },
+                  status: { in: ['PAID'] },
                 },
               },
             },
           },
           orders: {
             where: {
-              status: { in: ['COMPLETED', 'CONFIRMED'] },
+              status: { in: ['PAID'] },
             },
             select: {
               total: true,
@@ -138,12 +140,12 @@ export async function GET(request: NextRequest) {
       prisma.user.findMany({
         where: {
           role: 'PROMOTER',
-          events: {
+          eventsAsPromoter: {
             some: {
               orders: {
                 some: {
                   ...dateFilter,
-                  status: { in: ['COMPLETED', 'CONFIRMED'] },
+                  status: { in: ['PAID'] },
                 },
               },
             },
@@ -155,14 +157,14 @@ export async function GET(request: NextRequest) {
           businessName: true,
           _count: {
             select: {
-              events: true,
+              eventsAsPromoter: true,
             },
           },
-          events: {
+          eventsAsPromoter: {
             select: {
               orders: {
                 where: {
-                  status: { in: ['COMPLETED', 'CONFIRMED'] },
+                  status: { in: ['PAID'] },
                 },
                 select: {
                   total: true,
@@ -183,9 +185,9 @@ export async function GET(request: NextRequest) {
     // Format top events
     const formattedTopEvents = topEvents
       .map((event) => {
-        const revenue = event.orders.reduce((sum, order) => sum + order.total, 0);
+        const revenue = event.orders.reduce((sum: number, order: { total: number }) => sum + order.total, 0);
         const tickets = event.orders.reduce(
-          (sum, order) => sum + order.items.reduce((s, item) => s + item.quantity, 0),
+          (sum: number, order: { items: { quantity: number }[] }) => sum + order.items.reduce((s: number, item: { quantity: number }) => s + item.quantity, 0),
           0
         );
         return {
@@ -200,14 +202,14 @@ export async function GET(request: NextRequest) {
     // Format top promoters
     const formattedTopPromoters = topPromoters
       .map((promoter) => {
-        const revenue = promoter.events.reduce(
-          (sum, event) => sum + event.orders.reduce((s, order) => s + order.total, 0),
+        const revenue = promoter.eventsAsPromoter.reduce(
+          (sum: number, event: { orders: { total: number }[] }) => sum + event.orders.reduce((s: number, order: { total: number }) => s + order.total, 0),
           0
         );
         return {
           id: promoter.id,
           name: promoter.businessName || promoter.name || 'Sin nombre',
-          events: promoter._count.events,
+          events: promoter._count.eventsAsPromoter,
           revenue,
         };
       })
@@ -249,7 +251,7 @@ async function getDailySalesReport(dateFrom: Date, dateTo: Date) {
           gte: dateFrom,
           lte: dateTo,
         },
-        status: { in: ['COMPLETED', 'CONFIRMED'] },
+        status: { in: ['PAID'] },
       },
       select: {
         createdAt: true,
@@ -268,7 +270,7 @@ async function getDailySalesReport(dateFrom: Date, dateTo: Date) {
     // Group by day
     const dailyData: Record<string, { date: string; revenue: number; orders: number; tickets: number }> = {};
 
-    orders.forEach((order) => {
+    orders.forEach((order: { createdAt: Date; total: number; items: { quantity: number }[] }) => {
       const dateKey = order.createdAt.toISOString().split('T')[0];
       if (!dailyData[dateKey]) {
         dailyData[dateKey] = {
@@ -280,7 +282,7 @@ async function getDailySalesReport(dateFrom: Date, dateTo: Date) {
       }
       dailyData[dateKey].revenue += order.total;
       dailyData[dateKey].orders += 1;
-      dailyData[dateKey].tickets += order.items.reduce((sum, item) => sum + item.quantity, 0);
+      dailyData[dateKey].tickets += order.items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
     });
 
     return NextResponse.json({
@@ -308,7 +310,7 @@ async function getSaycoReport(dateFrom: Date, dateTo: Date) {
               gte: dateFrom,
               lte: dateTo,
             },
-            status: { in: ['COMPLETED', 'CONFIRMED'] },
+            status: { in: ['PAID'] },
           },
         },
       },
@@ -328,7 +330,7 @@ async function getSaycoReport(dateFrom: Date, dateTo: Date) {
               gte: dateFrom,
               lte: dateTo,
             },
-            status: { in: ['COMPLETED', 'CONFIRMED'] },
+            status: { in: ['PAID'] },
           },
           select: {
             total: true,
@@ -347,9 +349,9 @@ async function getSaycoReport(dateFrom: Date, dateTo: Date) {
     const acinproRate = 0.02;
 
     const reportData = events.map((event) => {
-      const totalRevenue = event.orders.reduce((sum, order) => sum + order.total, 0);
+      const totalRevenue = event.orders.reduce((sum: number, order: { total: number }) => sum + order.total, 0);
       const totalAttendees = event.orders.reduce(
-        (sum, order) => sum + order.items.reduce((s, item) => s + item.quantity, 0),
+        (sum: number, order: { items: { quantity: number }[] }) => sum + order.items.reduce((s: number, item: { quantity: number }) => s + item.quantity, 0),
         0
       );
 
@@ -410,18 +412,18 @@ async function getTaxesReport(dateFrom: Date, dateTo: Date) {
           gte: dateFrom,
           lte: dateTo,
         },
-        status: { in: ['COMPLETED', 'CONFIRMED'] },
+        status: { in: ['PAID'] },
       },
       select: {
         total: true,
         subtotal: true,
-        taxAmount: true,
+        taxesTotal: true,
       },
     });
 
-    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-    const totalSubtotal = orders.reduce((sum, order) => sum + order.subtotal, 0);
-    const totalTaxes = orders.reduce((sum, order) => sum + (order.taxAmount || 0), 0);
+    const totalRevenue = orders.reduce((sum: number, order: { total: number }) => sum + order.total, 0);
+    const totalSubtotal = orders.reduce((sum: number, order: { subtotal: number }) => sum + order.subtotal, 0);
+    const totalTaxes = orders.reduce((sum: number, order: { taxesTotal: number | null }) => sum + (order.taxesTotal || 0), 0);
 
     // Calculate tax breakdown by type
     const taxBreakdown = taxes.map((tax) => ({
@@ -429,7 +431,7 @@ async function getTaxesReport(dateFrom: Date, dateTo: Date) {
       code: tax.code,
       rate: tax.percentage,
       // Estimated amount based on percentage share
-      amount: totalTaxes * (tax.percentage / taxes.reduce((sum, t) => sum + t.percentage, 0) || 1),
+      amount: totalTaxes * (tax.percentage / taxes.reduce((sum: number, t: { percentage: number }) => sum + t.percentage, 0) || 1),
     }));
 
     return NextResponse.json({

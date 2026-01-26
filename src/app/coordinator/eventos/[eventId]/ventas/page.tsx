@@ -346,11 +346,10 @@ export default function EventSalesPage() {
                     {/* Validation filter */}
                     <button
                         onClick={() => setValidationFilter(validationFilter === true ? null : true)}
-                        className={`px-4 py-2 border rounded-lg flex items-center gap-2 transition-colors ${
-                            validationFilter === true
+                        className={`px-4 py-2 border rounded-lg flex items-center gap-2 transition-colors ${validationFilter === true
                                 ? 'bg-orange-100 border-orange-300 text-orange-700'
                                 : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-                        }`}
+                            }`}
                     >
                         <AlertTriangle className="w-4 h-4" />
                         Pendientes de validacion
@@ -391,7 +390,9 @@ export default function EventSalesPage() {
                                                 {order.orderNumber}
                                             </span>
                                             {order.requiresValidation && (
-                                                <AlertTriangle className="w-4 h-4 text-orange-500" title="Requiere validacion" />
+                                                <div title="Requiere validacion" className="inline-flex">
+                                                    <AlertTriangle className="w-4 h-4 text-orange-500" />
+                                                </div>
                                             )}
                                         </div>
                                         <span className="text-xs text-gray-500">
